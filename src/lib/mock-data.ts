@@ -1,11 +1,15 @@
+
 import type { Transaction, Budget, SavingsGoal } from '@/types';
 
+// Using fixed dates to prevent hydration mismatches
+const baseDate = new Date('2024-07-28T10:00:00.000Z');
+
 export const mockTransactions: Transaction[] = [
-  { id: '1', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), description: 'Grocery Store Trip', amount: -75.50, category: 'Groceries', type: 'expense' },
-  { id: '2', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), description: 'Monthly Salary', amount: 3000, category: 'Income', type: 'income' },
-  { id: '3', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: 'Coffee Shop', amount: -4.75, category: 'Dining Out', type: 'expense' },
-  { id: '4', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), description: 'Online Course Subscription', amount: -29.99, category: 'Education', type: 'expense' },
-  { id: '5', date: new Date().toISOString(), description: 'Restaurant Dinner', amount: -55.00, category: 'Dining Out', type: 'expense' },
+  { id: '1', date: new Date(baseDate.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), description: 'Grocery Store Trip', amount: -75.50, category: 'Groceries', type: 'expense' }, // 2024-07-26
+  { id: '2', date: new Date(baseDate.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), description: 'Monthly Salary', amount: 3000, category: 'Income', type: 'income' }, // 2024-07-27
+  { id: '3', date: new Date(baseDate.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: 'Coffee Shop', amount: -4.75, category: 'Dining Out', type: 'expense' }, // 2024-07-25
+  { id: '4', date: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), description: 'Online Course Subscription', amount: -29.99, category: 'Education', type: 'expense' }, // 2024-07-23
+  { id: '5', date: baseDate.toISOString(), description: 'Restaurant Dinner', amount: -55.00, category: 'Dining Out', type: 'expense' }, // 2024-07-28
 ];
 
 export const mockBudgets: Budget[] = [
