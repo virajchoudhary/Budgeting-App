@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -11,8 +12,10 @@ import { mockBudgets } from '@/lib/mock-data';
 import { CreateBudgetDialog } from '@/components/budgets/create-budget-dialog';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useSettings } from '@/contexts/settings-context';
 
 export default function BudgetsPage() {
+  const { currency } = useSettings();
   const [budgets, setBudgets] = useState<Budget[]>(mockBudgets);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
@@ -80,17 +83,17 @@ export default function BudgetsPage() {
                 <CardContent className="flex-grow">
                   <div className="mb-2">
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Spent: {budget.spent.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                      <span>Spent: {budget.spent.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
                       <span className={isOverspent ? "text-red-400" : ""}>
-                        Limit: {budget.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                        Limit: {budget.amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
                       </span>
                     </div>
                     <Progress value={progress} className="h-3" indicatorClassName={isOverspent ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'} />
                   </div>
                   <p className={`text-sm ${isOverspent ? 'text-red-400' : 'text-green-400'}`}>
                     {isOverspent 
-                      ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} overspent`
-                      : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} remaining`}
+                      ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`
+                      : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`}
                   </p>
                 </CardContent>
                 <CardFooter>

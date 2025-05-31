@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AddTransactionDialog } from './add-transaction-dialog'; // Re-use for editing
+import { useSettings } from '@/contexts/settings-context';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -23,6 +25,7 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ transactions, onEditTransaction, onDeleteTransaction }: TransactionListProps) {
+  const { currency } = useSettings();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const handleEdit = (transaction: Transaction) => {
@@ -68,7 +71,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                   <TableCell><Badge variant={transaction.category === 'Income' ? 'default' : 'secondary'} className={transaction.category === 'Income' ? 'bg-green-500/20 text-green-300 border-green-500/30' : ''}>{transaction.category}</Badge></TableCell>
                   <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
                     {transaction.type === 'expense' ? '-' : ''}
-                    {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                    {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}
                   </TableCell>
                   <TableCell className="text-center">
                     <DropdownMenu>

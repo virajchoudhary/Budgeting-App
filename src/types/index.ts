@@ -48,3 +48,13 @@ export const transactionCategories: TransactionCategory[] = [
   'Entertainment', 'Shopping', 'Healthcare', 'Income', 'Investments', 'Travel', 
   'Education', 'Personal Care', 'Gifts/Donations', 'Other', 'Uncategorized'
 ];
+
+export type Currency = 'USD' | 'INR' | 'JPY' | 'GBP' | 'EUR';
+
+export const supportedCurrencies: { value: Currency; label: string }[] = [
+  { value: 'USD', label: 'USD - US Dollar' },
+  { value: 'INR', label: 'INR - Indian Rupee' },
+  { value: 'JPY', label: 'JPY - Japanese Yen' },
+  { value: 'GBP', label: 'GBP - British Pound' },
+  { value: 'EUR', label: 'EUR - Euro' },
+];

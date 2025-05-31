@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -10,8 +11,10 @@ import type { SavingsGoal } from '@/types';
 import { mockSavingsGoals } from '@/lib/mock-data';
 import { AddSavingsGoalDialog } from '@/components/savings/add-savings-goal-dialog';
 import { format } from 'date-fns';
+import { useSettings } from '@/contexts/settings-context';
 
 export default function SavingsPage() {
+  const { currency } = useSettings();
   const [goals, setGoals] = useState<SavingsGoal[]>(mockSavingsGoals);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
@@ -80,8 +83,8 @@ export default function SavingsPage() {
                   <div className="mb-2">
                     <Progress value={progress} className="h-3 mb-2" />
                     <div className="flex justify-between text-sm">
-                      <span>Saved: {goal.currentAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
-                      <span>Target: {goal.targetAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+                      <span>Saved: {goal.currentAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
+                      <span>Target: {goal.targetAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
                     </div>
                   </div>
                 </CardContent>

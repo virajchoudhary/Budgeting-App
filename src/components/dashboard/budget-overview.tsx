@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Budget } from "@/types";
@@ -6,12 +7,14 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { ArrowRight } from "lucide-react";
+import { useSettings } from '@/contexts/settings-context';
 
 interface BudgetOverviewProps {
   budgets: Budget[];
 }
 
 export function BudgetOverview({ budgets }: BudgetOverviewProps) {
+  const { currency } = useSettings();
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -26,14 +29,14 @@ export function BudgetOverview({ budgets }: BudgetOverviewProps) {
               <div className="flex justify-between mb-1">
                 <span className="text-sm font-medium">{budget.name} ({budget.category})</span>
                 <span className={`text-sm font-medium ${progress > 100 ? 'text-red-400' : 'text-muted-foreground'}`}>
-                  {budget.spent.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} / {budget.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                  {budget.spent.toLocaleString('en-US', { style: 'currency', currency: currency })} / {budget.amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
                 </span>
               </div>
               <Progress value={Math.min(progress, 100)} className="h-3" 
                 indicatorClassName={progress > 100 ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {remaining >=0 ? `${remaining.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} remaining` : `${Math.abs(remaining).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} overspent`}
+                {remaining >=0 ? `${remaining.toLocaleString('en-US', { style: 'currency', currency: currency })} remaining` : `${Math.abs(remaining).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`}
               </p>
             </div>
           );

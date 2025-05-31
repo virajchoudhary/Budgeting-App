@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Transaction } from "@/types";
@@ -7,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useSettings } from '@/contexts/settings-context';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
 }
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+  const { currency } = useSettings();
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -35,7 +38,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                   <TableCell><Badge variant="secondary">{transaction.category}</Badge></TableCell>
                   <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
                     {transaction.type === 'expense' ? '-' : ''}
-                    {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                    {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}
                   </TableCell>
                 </TableRow>
               ))}

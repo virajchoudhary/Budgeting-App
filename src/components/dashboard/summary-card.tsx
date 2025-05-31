@@ -1,7 +1,9 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpCircle, ArrowDownCircle, DollarSign } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { useSettings } from '@/contexts/settings-context';
 
 interface SummaryCardProps {
   title: string;
@@ -11,6 +13,7 @@ interface SummaryCardProps {
 }
 
 export function SummaryCard({ title, amount, period, type }: SummaryCardProps) {
+  const { currency } = useSettings();
   const Icon = type === "income" ? ArrowUpCircle : ArrowDownCircle;
   const amountColor = type === "income" ? "text-green-400" : "text-red-400";
 
@@ -22,7 +25,7 @@ export function SummaryCard({ title, amount, period, type }: SummaryCardProps) {
       </CardHeader>
       <CardContent>
         <div className={`text-3xl font-bold ${amountColor}`}>
-          {amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+          {amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
         </div>
         <p className="text-xs text-muted-foreground pt-1">{period}</p>
       </CardContent>
