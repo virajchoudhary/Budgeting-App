@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -13,7 +14,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset className="flex-1">
         <div className="p-4 sm:p-6 lg:p-8">
-         {children}
+         <div className="mx-auto max-w-7xl">
+            {children}
+          </div>
         </div>
       </SidebarInset>
     </div>
