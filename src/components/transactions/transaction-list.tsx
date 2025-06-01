@@ -65,10 +65,10 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
             </TableHeader>
             <TableBody>
               {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
+                <TableRow key={transaction.id} className="hover:bg-muted/20 transition-colors duration-150">
                   <TableCell>{format(new Date(transaction.date), 'MMM dd, yyyy')}</TableCell>
                   <TableCell className="font-medium">{transaction.description}</TableCell>
-                  <TableCell><Badge variant={transaction.category === 'Income' ? 'default' : 'secondary'} className={transaction.category === 'Income' ? 'bg-green-500/20 text-green-300 border-green-500/30' : ''}>{transaction.category}</Badge></TableCell>
+                  <TableCell><Badge variant="outline">{transaction.category}</Badge></TableCell>
                   <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
                     {transaction.type === 'expense' ? '-' : ''}
                     {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}

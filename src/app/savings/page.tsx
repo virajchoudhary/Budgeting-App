@@ -93,7 +93,7 @@ export default function SavingsPage() {
             const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
             const isLoading = loadingTips[goal.id];
             return (
-              <Card key={goal.id} className="flex flex-col hover:shadow-xl transition-shadow duration-300">
+              <Card key={goal.id} className="flex flex-col hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01] transform transition-transform duration-300">
                 <CardHeader>
                    <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">

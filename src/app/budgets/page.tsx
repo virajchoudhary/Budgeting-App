@@ -82,7 +82,7 @@ export default function BudgetsPage() {
             const period = formattedPeriods[budget.id] || "Loading period...";
 
             return (
-              <Card key={budget.id} className="flex flex-col">
+              <Card key={budget.id} className="flex flex-col hover:scale-[1.01] transform transition-transform duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
