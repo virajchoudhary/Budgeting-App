@@ -8,10 +8,10 @@
     --background: 0 0% 8%; /* Darkened from 10% */
     --foreground: 0 0% 88%;
 
-    --card: 240 2% 14%; /* Made cards darker, from 16% */
+    --card: 240 2% 14% / 0.75; /* Made cards darker, 75% opacity for blur */
     --card-foreground: 0 0% 88%;
 
-    --popover: 0 0% 8%; /* Darkened from 10% */
+    --popover: 240 2% 14% / 0.75; /* Popover matches card, 75% opacity for blur */
     --popover-foreground: 0 0% 88%;
 
     --primary: 187 100% 42%;
@@ -59,9 +59,9 @@
   .dark {
     --background: 0 0% 8%;
     --foreground: 0 0% 88%;
-    --card: 240 2% 14%; /* Made cards darker, from 16% */
+    --card: 240 2% 14% / 0.75; /* Made cards darker, 75% opacity for blur */
     --card-foreground: 0 0% 88%;
-    --popover: 0 0% 8%;
+    --popover: 240 2% 14% / 0.75; /* Popover matches card, 75% opacity for blur */
     --popover-foreground: 0 0% 88%;
     --primary: 187 100% 42%;
     --primary-foreground: 0 0% 100%;
@@ -127,3 +127,4 @@
     }
   }
 }
+

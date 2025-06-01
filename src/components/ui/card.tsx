@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-lg", // Use new HSL vars, kDefaultShadow (shadow-lg)
+      "rounded-lg border border-white/10 bg-card text-card-foreground shadow-lg backdrop-blur-xl", // Use new HSL vars, kDefaultShadow (shadow-lg), added backdrop-blur and specific border
       className
     )}
     {...props}
@@ -78,3 +78,4 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+
