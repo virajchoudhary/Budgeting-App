@@ -5,17 +5,17 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%; /* Darkened to near-black */
+    --background: 0 0% 5%; /* Very dark, near-black */
     --foreground: 0 0% 88%;
 
-    --card: 240 2% 14% / 0.75; /* Kept from previous blur update */
+    --card: 240 2% 14% / 0.75; /* Dark gray, semi-transparent for blur */
     --card-foreground: 0 0% 88%;
 
-    --popover: 240 2% 14% / 0.75; /* Kept from previous blur update, matches card */
+    --popover: 240 2% 14% / 0.75; /* Matches card, semi-transparent for blur */
     --popover-foreground: 0 0% 88%;
 
-    --primary: 187 100% 42%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 260 85% 60%; /* Vibrant Purple */
+    --primary-foreground: 0 0% 100%; /* White for contrast on purple */
 
     --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 88%;
@@ -23,78 +23,79 @@
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 187 100% 42%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 260 85% 60%; /* Vibrant Purple */
+    --accent-foreground: 0 0% 100%; /* White for contrast on purple */
 
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 10%;
-    --input: 240 2% 18%;
-    --ring: 187 100% 50%;
+    --border: 0 0% 10%; /* Very subtle border for dark theme */
+    --input: 240 2% 18%; /* Slightly distinct from card for input fields */
+    --ring: 260 85% 65%; /* Lighter purple for focus rings */
 
-    --radius: 1rem;
+    --radius: 1rem; /* Consistent rounded corners */
 
-    /* Chart colors */
-    --chart-1: 187 70% 50%;
-    --chart-2: 187 80% 60%;
-    --chart-3: 187 90% 70%;
-    --chart-4: 210 70% 60%;
-    --chart-5: 210 80% 70%;
-    --chart-6: 160 60% 50%;
-    --chart-7: 180 55% 60%;
-    --chart-8: 180 65% 50%;
+    /* Chart colors - Shades of Purple */
+    --chart-1: 260 85% 60%;
+    --chart-2: 260 80% 68%;
+    --chart-3: 260 75% 75%;
+    --chart-4: 260 90% 55%;
+    --chart-5: 260 70% 50%;
+    --chart-6: 260 65% 45%;
+    --chart-7: 260 60% 40%;
+    --chart-8: 260 90% 80%;
+
 
     /* Sidebar specific colors */
-    --sidebar-background: 0 0% 5%; /* Darkened to match main background */
+    --sidebar-background: 0 0% 5%; /* Deep dark to match main background */
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 187 100% 55%;
+    --sidebar-primary: 260 85% 65%; /* Slightly brighter purple for sidebar emphasis */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 9%;
-    --sidebar-ring: 187 100% 50%;
+    --sidebar-ring: 260 85% 65%;
   }
 
   .dark {
-    --background: 0 0% 5%; /* Darkened to near-black */
+    --background: 0 0% 5%;
     --foreground: 0 0% 88%;
-    --card: 240 2% 14% / 0.75; /* Kept from previous blur update */
+    --card: 240 2% 14% / 0.75;
     --card-foreground: 0 0% 88%;
-    --popover: 240 2% 14% / 0.75; /* Kept from previous blur update, matches card */
+    --popover: 240 2% 14% / 0.75;
     --popover-foreground: 0 0% 88%;
-    --primary: 187 100% 42%;
+    --primary: 260 85% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 88%;
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
-    --accent: 187 100% 42%;
+    --accent: 260 85% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 10%;
     --input: 240 2% 18%;
-    --ring: 187 100% 50%;
+    --ring: 260 85% 65%;
     --radius: 1rem;
 
-    --chart-1: 187 70% 50%;
-    --chart-2: 187 80% 60%;
-    --chart-3: 187 90% 70%;
-    --chart-4: 210 70% 60%;
-    --chart-5: 210 80% 70%;
-    --chart-6: 160 60% 50%;
-    --chart-7: 180 55% 60%;
-    --chart-8: 180 65% 50%;
+    --chart-1: 260 85% 60%;
+    --chart-2: 260 80% 68%;
+    --chart-3: 260 75% 75%;
+    --chart-4: 260 90% 55%;
+    --chart-5: 260 70% 50%;
+    --chart-6: 260 65% 45%;
+    --chart-7: 260 60% 40%;
+    --chart-8: 260 90% 80%;
 
-    --sidebar-background: 0 0% 5%; /* Darkened to match main background */
+    --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 187 100% 55%;
+    --sidebar-primary: 260 85% 65%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 9%;
-    --sidebar-ring: 187 100% 50%;
+    --sidebar-ring: 260 85% 65%;
   }
 }
 
