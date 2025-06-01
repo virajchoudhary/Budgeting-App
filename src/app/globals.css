@@ -40,6 +40,10 @@
     --chart-3: 180 70% 45%;
     --chart-4: 180 80% 35%;
     --chart-5: 180 90% 25%;
+    --chart-6: 180 40% 75%;
+    --chart-7: 180 55% 60%;
+    --chart-8: 180 65% 50%;
+
 
     --sidebar-background: 240 6% 7%; /* #101114 - Very dark, slightly distinct from main bg */
     --sidebar-foreground: 0 0% 90%; /* #E5E5E5 */
@@ -78,6 +82,9 @@
     --chart-3: 180 70% 45%;
     --chart-4: 180 80% 35%;
     --chart-5: 180 90% 25%;
+    --chart-6: 180 40% 75%;
+    --chart-7: 180 55% 60%;
+    --chart-8: 180 65% 50%;
 
     --sidebar-background: 240 6% 7%;
     --sidebar-foreground: 0 0% 90%;
@@ -107,8 +114,8 @@
 
 @layer utilities {
   .animate-content-fade-in {
-    animation: content-fade-in 0.15s ease-out forwards; /* Very fast duration */
-    will-change: opacity; /* Hint for browser optimization */
+    animation: content-fade-in 0.2s ease-out forwards; /* Adjusted duration and timing */
+    will-change: opacity; 
   }
 
   @keyframes content-fade-in {
