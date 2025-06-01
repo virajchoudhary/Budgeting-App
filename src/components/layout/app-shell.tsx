@@ -17,7 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="flex-1 bg-transparent">
         <div 
           key={pathname} /* Key change triggers re-render and animation */
-          className="p-4 sm:p-6 lg:p-8 animate-content-fade-in"
+          className="p-4 sm:p-6 lg:p-8 animate-content-fade-in" /* Ensure this class is applied */
         >
          <div className="mx-auto max-w-7xl">
             {children}
