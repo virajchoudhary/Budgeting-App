@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -11,16 +12,15 @@ import {
   SidebarFooter,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard } from 'lucide-react'; // Added CreditCard
+import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard } from 'lucide-react';
 
 const navItems = [
   { href: '/', label: 'Overview', icon: Home },
   { href: '/transactions', label: 'Transactions', icon: ListChecks },
-  { href: '/import', label: 'Import CSV', icon: FileInput },
+  { href: '/import', label: 'Import', icon: FileInput }, // Shorter label
   { href: '/budgets', label: 'Budgets', icon: PieChart },
-  { href: '/savings', label: 'Savings Goals', icon: Target },
+  { href: '/savings', label: 'Savings', icon: Target }, // Shorter label
   { href: '/insights', label: 'Insights', icon: Brain },
 ];
 
@@ -30,22 +30,22 @@ export function AppSidebar() {
   return (
     <>
       <SidebarHeader className="flex items-center justify-between p-4">
-        <Link href="/" className="flex items-center gap-2">
-          <CreditCard className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-semibold font-headline group-data-[collapsible=icon]:hidden">Synapse</h1>
+        <Link href="/" className="flex items-center gap-2.5">
+          <CreditCard className="h-7 w-7 text-primary" /> {/* Slightly smaller icon */}
+          <h1 className="text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">Synapse</h1> {/* Adjusted font size */}
         </Link>
         <div className="md:hidden">
           <SidebarTrigger />
         </div>
       </SidebarHeader>
-      <Separator />
-      <SidebarContent className="p-4">
+      <Separator className="mx-2 my-0" /> {/* Less vertical margin */}
+      <SidebarContent className="p-2"> {/* Reduced padding */}
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} passHref legacyBehavior>
                 <SidebarMenuButton
-                  asChild
+                  asChild // Ensure the <a> tag gets the styles
                   isActive={pathname === item.href}
                   tooltip={{ children: item.label, side: 'right', align: 'center' }}
                 >
@@ -59,13 +59,13 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <Separator />
-      <SidebarFooter className="p-4">
+      <Separator className="mx-2 mt-auto mb-0" /> {/* Push to bottom, less vertical margin */}
+      <SidebarFooter className="p-2"> {/* Reduced padding */}
         <SidebarMenu>
           <SidebarMenuItem>
              <Link href="/settings" passHref legacyBehavior>
                 <SidebarMenuButton 
-                    asChild 
+                    asChild
                     isActive={pathname === "/settings"}
                     tooltip={{children: "Settings", side: "right", align: "center"}}
                 >

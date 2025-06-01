@@ -5,79 +5,88 @@
 
 @layer base {
   :root {
-    --background: 0 0% 3%; /* #080808 */
-    --foreground: 0 0% 83%; /* #D3D3D3 */
-    --card: 0 0% 10%; /* #1A1A1A - Base for card, opacity applied in component */
-    --card-foreground: 0 0% 83%; /* #D3D3D3 */
-    --popover: 0 0% 10%; /* #1A1A1A */
-    --popover-foreground: 0 0% 83%; /* #D3D3D3 */
-    --primary: 180 50% 72%; /* #98D8D8 */
-    --primary-foreground: 0 0% 3%; /* #080808 */
-    --secondary: 0 0% 15%; /* #262626 */
-    --secondary-foreground: 0 0% 83%; /* #D3D3D3 */
-    --muted: 0 0% 20%; /* #333333 */
-    --muted-foreground: 0 0% 60%; /* #999999 */
-    --accent: 180 50% 72%; /* #98D8D8 */
-    --accent-foreground: 0 0% 3%; /* #080808 */
-    --destructive: 0 62.8% 30.6%; /* Default, adjust if needed for theme */
-    --destructive-foreground: 0 0% 98%; /* Default */
-    --border: 0 0% 13%; /* #202020 */
-    --input: 0 0% 10%; /* #1A1A1A */
-    --ring: 180 50% 72%; /* #98D8D8 */
+    --background: 240 10% 3.9%; /* #0A0A0F - Very dark blue/gray */
+    --foreground: 0 0% 98%; /* #FAFAFA - Near white */
 
-    --chart-1: 180 50% 72%;
-    --chart-2: 180 60% 62%;
-    --chart-3: 180 70% 52%;
-    --chart-4: 180 80% 42%;
-    --chart-5: 180 90% 32%;
-    --radius: 1.5rem; /* Significantly increased for more rounded corners */
+    --card: 240 4% 9%; /* #151619 - Slightly lighter dark for cards */
+    --card-foreground: 0 0% 98%; /* #FAFAFA */
 
-    --sidebar-background: 0 0% 5%; /* #0C0C0C - Base for sidebar, opacity applied in component */
-    --sidebar-foreground: 0 0% 83%; /* #D3D3D3 */
-    --sidebar-primary: 180 50% 72%; /* #98D8D8 */
-    --sidebar-primary-foreground: 0 0% 3%; /* #080808 */
-    --sidebar-accent: 0 0% 10%; /* #1A1A1A */
-    --sidebar-accent-foreground: 180 50% 72%; /* #98D8D8 */
-    --sidebar-border: 0 0% 13%; /* #202020 */
-    --sidebar-ring: 180 50% 72%; /* #98D8D8 */
+    --popover: 240 10% 3.9%; /* #0A0A0F */
+    --popover-foreground: 0 0% 98%; /* #FAFAFA */
+
+    --primary: 180 50% 65%; /* #80CBC4 - Teal, slightly desaturated */
+    --primary-foreground: 240 10% 3.9%; /* #0A0A0F */
+
+    --secondary: 240 3.7% 15.9%; /* #23252A - Darker muted elements */
+    --secondary-foreground: 0 0% 98%; /* #FAFAFA */
+
+    --muted: 240 3.7% 15.9%; /* #23252A */
+    --muted-foreground: 240 5% 64.9%; /* #A0A3AF - Lighter muted text */
+
+    --accent: 180 50% 65%; /* #80CBC4 */
+    --accent-foreground: 240 10% 3.9%; /* #0A0A0F */
+
+    --destructive: 0 72.2% 50.6%; /* #E53E3E */
+    --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+
+    --border: 240 3.7% 15.9%; /* #23252A - Subtle border */
+    --input: 240 3.7% 15.9%; /* #23252A */
+    --ring: 180 50% 75%; /* #98D8D8 - Brighter ring for focus */
+
+    --radius: 0.75rem; /* Reduced for a sleeker, modern look (12px) */
+
+    --chart-1: 180 50% 65%;
+    --chart-2: 180 60% 55%;
+    --chart-3: 180 70% 45%;
+    --chart-4: 180 80% 35%;
+    --chart-5: 180 90% 25%;
+
+    --sidebar-background: 240 6% 7%; /* #101114 - Very dark, slightly distinct from main bg */
+    --sidebar-foreground: 0 0% 90%; /* #E5E5E5 */
+    --sidebar-primary: 180 50% 65%; /* #80CBC4 */
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 4% 12%; /* #1D1E22 - Subtle accent for sidebar hover */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 12%; /* #1E1F24 - Sidebar border */
+    --sidebar-ring: 180 50% 75%;
   }
 
   .dark {
-    --background: 0 0% 3%; /* #080808 */
-    --foreground: 0 0% 83%; /* #D3D3D3 */
-    --card: 0 0% 10%; /* #1A1A1A */
-    --card-foreground: 0 0% 83%; /* #D3D3D3 */
-    --popover: 0 0% 10%; /* #1A1A1A */
-    --popover-foreground: 0 0% 83%; /* #D3D3D3 */
-    --primary: 180 50% 72%; /* #98D8D8 */
-    --primary-foreground: 0 0% 3%; /* #080808 */
-    --secondary: 0 0% 15%; /* #262626 */
-    --secondary-foreground: 0 0% 83%; /* #D3D3D3 */
-    --muted: 0 0% 20%; /* #333333 */
-    --muted-foreground: 0 0% 60%; /* #999999 */
-    --accent: 180 50% 72%; /* #98D8D8 */
-    --accent-foreground: 0 0% 3%; /* #080808 */
-    --destructive: 0 62.8% 30.6%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 4% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 180 50% 65%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 180 50% 65%;
+    --accent-foreground: 240 10% 3.9%;
+    --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 13%; /* #202020 */
-    --input: 0 0% 10%; /* #1A1A1A */
-    --ring: 180 50% 72%; /* #98D8D8 */
-    --radius: 1.5rem; /* Significantly increased for more rounded corners */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 180 50% 75%;
+    --radius: 0.75rem;
 
-    --chart-1: 180 50% 72%;
-    --chart-2: 180 60% 62%;
-    --chart-3: 180 70% 52%;
-    --chart-4: 180 80% 42%;
-    --chart-5: 180 90% 32%;
+    --chart-1: 180 50% 65%;
+    --chart-2: 180 60% 55%;
+    --chart-3: 180 70% 45%;
+    --chart-4: 180 80% 35%;
+    --chart-5: 180 90% 25%;
 
-    --sidebar-background: 0 0% 5%; /* #0C0C0C */
-    --sidebar-foreground: 0 0% 83%; /* #D3D3D3 */
-    --sidebar-primary: 180 50% 72%; /* #98D8D8 */
-    --sidebar-primary-foreground: 0 0% 3%; /* #080808 */
-    --sidebar-accent: 0 0% 10%; /* #1A1A1A */
-    --sidebar-accent-foreground: 180 50% 72%; /* #98D8D8 */
-    --sidebar-border: 0 0% 13%; /* #202020 */
-    --sidebar-ring: 180 50% 72%; /* #98D8D8 */
+    --sidebar-background: 240 6% 7%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 180 50% 65%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 4% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 12%;
+    --sidebar-ring: 180 50% 75%;
   }
 }
 
@@ -87,9 +96,9 @@
   }
   body {
     /* Subtle radial gradient for depth */
-    background-image: radial-gradient(circle at top center, hsl(var(--background) / 0.95) 0%, hsl(var(--background)) 70%);
+    background-image: radial-gradient(circle at top center, hsl(var(--background) / 0.98) 0%, hsl(var(--background)) 80%);
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif; /* Explicitly set Inter for body */
+    font-family: 'Inter', sans-serif;
     font-size: 1rem; 
     line-height: 1.65;
     @apply antialiased;
@@ -98,7 +107,7 @@
 
 @layer utilities {
   .animate-content-fade-in {
-    animation: content-fade-in 0.25s ease-out forwards; /* Faster duration */
+    animation: content-fade-in 0.15s ease-out forwards; /* Very fast duration */
     will-change: opacity; /* Hint for browser optimization */
   }
 

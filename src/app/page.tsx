@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -35,33 +36,33 @@ export default function DashboardPage() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6"> {/* Reduced space */}
       <PageHeader
         title="Overview"
-        description="Your financial snapshot at a glance."
+        description="Your financial snapshot." /* Shorter description */
         actions={
           <>
             <Link href="/transactions#add" passHref>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction
+              <Button size="sm"> {/* Smaller button */}
+                <PlusCircle className="mr-1.5 h-4 w-4" /> Add Transaction
               </Button>
             </Link>
             <Link href="/import" passHref>
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" /> Import CSV
+              <Button variant="outline" size="sm"> {/* Smaller button */}
+                <Upload className="mr-1.5 h-4 w-4" /> Import
               </Button>
             </Link>
           </>
         }
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> {/* Reduced gap */}
         <SummaryCard title="Total Income" amount={totalIncome} period="This Month" type="income" />
         <SummaryCard title="Total Expenses" amount={totalExpenses} period="This Month" type="expense" />
         <SummaryCard title="Net Balance" amount={netBalance} period="This Month" type={netBalance >= 0 ? "income" : "expense"} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2"> {/* Reduced gap */}
         <RecentTransactions transactions={transactions} />
         <BudgetOverview budgets={budgets} />
       </div>
