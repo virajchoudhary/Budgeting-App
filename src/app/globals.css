@@ -8,7 +8,7 @@
     --background: 0 0% 8%; /* Darkened from 10% */
     --foreground: 0 0% 88%;
 
-    --card: 240 2% 16%; /* Darkened from 18% */
+    --card: 240 2% 14%; /* Made cards darker, from 16% */
     --card-foreground: 0 0% 88%;
 
     --popover: 0 0% 8%; /* Darkened from 10% */
@@ -59,7 +59,7 @@
   .dark {
     --background: 0 0% 8%;
     --foreground: 0 0% 88%;
-    --card: 240 2% 16%;
+    --card: 240 2% 14%; /* Made cards darker, from 16% */
     --card-foreground: 0 0% 88%;
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 88%;
