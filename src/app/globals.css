@@ -5,76 +5,76 @@
 
 @layer base {
   :root {
-    --background: 0 0% 10%; /* #1A1A1A kBackgroundColor */
-    --foreground: 0 0% 88%; /* #E0E0E0 kForegroundColor */
+    --background: 0 0% 8%; /* Darkened from 10% */
+    --foreground: 0 0% 88%;
 
-    --card: 240 2% 18%; /* #2C2C2E kCardColor */
-    --card-foreground: 0 0% 88%; /* #E0E0E0 */
+    --card: 240 2% 16%; /* Darkened from 18% */
+    --card-foreground: 0 0% 88%;
 
-    --popover: 0 0% 10%; /* kBackgroundColor */
-    --popover-foreground: 0 0% 88%; /* kForegroundColor */
+    --popover: 0 0% 8%; /* Darkened from 10% */
+    --popover-foreground: 0 0% 88%;
 
-    --primary: 187 100% 42%; /* #00BCD4 kPrimaryColor / kAccentColor */
-    --primary-foreground: 0 0% 100%; /* White text on vibrant teal */
+    --primary: 187 100% 42%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 22%; /* Slightly lighter gray than card for secondary elements */
-    --secondary-foreground: 0 0% 88%; /* kForegroundColor */
+    --secondary: 0 0% 20%; /* Darkened from 22% */
+    --secondary-foreground: 0 0% 88%;
 
-    --muted: 0 0% 15%; /* Subtle gray for muted elements */
-    --muted-foreground: 0 0% 65%; /* Lighter gray for muted text */
+    --muted: 0 0% 12%; /* Darkened from 15% */
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 187 100% 42%; /* #00BCD4 kPrimaryColor / kAccentColor */
-    --accent-foreground: 0 0% 100%; /* White text on vibrant teal */
+    --accent: 187 100% 42%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72.2% 50.6%; /* Standard red for destructive actions */
-    --destructive-foreground: 0 0% 98%; /* Light text on red */
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 13%; /* Very subtle border, slightly lighter than background */
-    --input: 240 2% 20%; /* Slightly distinct from card for input fields */
-    --ring: 187 100% 50%; /* Lighter version of primary for focus rings */
+    --border: 0 0% 10%; /* Darkened from 13% */
+    --input: 240 2% 18%; /* Darkened from 20% */
+    --ring: 187 100% 50%;
 
-    --radius: 1rem; /* kDefaultBorderRadius (16.0) */
+    --radius: 1rem;
 
-    /* Chart colors - retain existing or refine if needed */
-    --chart-1: 187 70% 50%; /* Variations of primary/accent */
+    /* Chart colors */
+    --chart-1: 187 70% 50%;
     --chart-2: 187 80% 60%;
     --chart-3: 187 90% 70%;
-    --chart-4: 210 70% 60%; /* A complementary blue */
+    --chart-4: 210 70% 60%;
     --chart-5: 210 80% 70%;
-    --chart-6: 160 60% 50%; /* A complementary green */
+    --chart-6: 160 60% 50%;
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
     /* Sidebar specific colors */
-    --sidebar-background: 0 0% 9%; /* Slightly darker or same as main bg for distinct sidebar */
-    --sidebar-foreground: 0 0% 85%; /* Slightly softer foreground for sidebar */
-    --sidebar-primary: 187 100% 55%; /* Brighter teal for active/highlighted sidebar items */
+    --sidebar-background: 0 0% 7%; /* Darkened from 9% */
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 187 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 14%; /* Subtle accent for sidebar hover (e.g. very light bg tint) */
+    --sidebar-accent: 0 0% 12%; /* Darkened from 14% */
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 12%; /* Sidebar border */
+    --sidebar-border: 0 0% 9%; /* Darkened from 12% */
     --sidebar-ring: 187 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 10%;
+    --background: 0 0% 8%;
     --foreground: 0 0% 88%;
-    --card: 240 2% 18%;
+    --card: 240 2% 16%;
     --card-foreground: 0 0% 88%;
-    --popover: 0 0% 10%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 88%;
     --primary: 187 100% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 22%;
+    --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 88%;
-    --muted: 0 0% 15%;
+    --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
     --accent: 187 100% 42%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 13%;
-    --input: 240 2% 20%;
+    --border: 0 0% 10%;
+    --input: 240 2% 18%;
     --ring: 187 100% 50%;
     --radius: 1rem;
 
@@ -87,13 +87,13 @@
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
-    --sidebar-background: 0 0% 9%;
+    --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 187 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 12%;
+    --sidebar-border: 0 0% 9%;
     --sidebar-ring: 187 100% 50%;
   }
 }
@@ -107,14 +107,14 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     font-size: 1rem; 
-    line-height: 1.7; /* Increased for better readability */
+    line-height: 1.7;
     @apply antialiased;
   }
 }
 
 @layer utilities {
   .animate-content-fade-in {
-    animation: content-fade-in 0.2s ease-out forwards; /* Quick and smooth */
+    animation: content-fade-in 0.2s ease-out forwards;
     will-change: opacity; 
   }
 
