@@ -10,7 +10,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border border-white/5 bg-card/85 backdrop-blur-lg text-card-foreground shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out hover:scale-[1.02]", // Enhanced frosted glass, subtle border, hover scale
+      "rounded-lg border border-white/5 bg-card/85 backdrop-blur-lg text-card-foreground shadow-xl transition-all duration-300 ease-in-out", // Removed hover:shadow-2xl and hover:scale-[1.02]
       className
     )}
     {...props}
@@ -78,3 +78,4 @@ const CardFooter = React.forwardRef<
 CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+

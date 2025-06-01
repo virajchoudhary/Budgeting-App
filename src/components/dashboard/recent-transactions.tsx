@@ -17,7 +17,7 @@ interface RecentTransactionsProps {
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   const { currency } = useSettings();
   return (
-    <Card className="hover:shadow-xl hover:scale-100">
+    <Card>
       <CardHeader>
         <CardTitle className="text-xl font-semibold">Recent Transactions</CardTitle>
       </CardHeader>
@@ -58,3 +58,4 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
     </Card>
   );
 }
+
