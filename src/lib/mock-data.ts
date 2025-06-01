@@ -13,9 +13,9 @@ export const mockTransactions: Transaction[] = [
 ];
 
 export const mockBudgets: Budget[] = [
-  { id: 'b1', name: 'Monthly Groceries', category: 'Groceries', amount: 400, spent: 150.25, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T23:59:59.999Z' },
-  { id: 'b2', name: 'Entertainment Fun', category: 'Entertainment', amount: 150, spent: 75.00, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T23:59:59.999Z' },
-  { id: 'b3', name: 'Transportation Costs', category: 'Transportation', amount: 100, spent: 30.50, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T23:59:59.999Z' },
+  { id: 'b1', name: 'Monthly Groceries', category: 'Groceries', amount: 400, spent: 150.25, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T12:00:00.000Z' },
+  { id: 'b2', name: 'Entertainment Fun', category: 'Entertainment', amount: 150, spent: 75.00, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T12:00:00.000Z' },
+  { id: 'b3', name: 'Transportation Costs', category: 'Transportation', amount: 100, spent: 30.50, startDate: '2024-07-01T00:00:00.000Z', endDate: '2024-07-31T12:00:00.000Z' },
 ];
 
 export const mockSavingsGoals: SavingsGoal[] = [
@@ -23,3 +23,4 @@ export const mockSavingsGoals: SavingsGoal[] = [
   { id: 's2', name: 'New Laptop', targetAmount: 1200, currentAmount: 300 },
   { id: 's3', name: 'Emergency Fund', targetAmount: 5000, currentAmount: 2500 },
 ];
+
