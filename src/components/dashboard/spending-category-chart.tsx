@@ -2,10 +2,12 @@
 "use client";
 
 import type { FC } from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'; // Removed Tooltip and Legend from here as we use ChartTooltip and ChartLegend from ui/chart
 import {
   ChartContainer,
+  ChartTooltip, // Added ChartTooltip import
   ChartTooltipContent,
+  ChartLegend, // Added ChartLegend import
   ChartLegendContent,
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,12 +22,6 @@ interface SpendingData {
 interface SpendingCategoryChartProps {
   data: SpendingData[];
 }
-
-const chartConfig = {
-  amount: {
-    label: "Amount",
-  },
-} as const;
 
 // Helper to generate HSL chart colors from globals.css
 const getChartColor = (index: number) => `hsl(var(--chart-${(index % 8) + 1}))`;
@@ -136,3 +132,4 @@ function PieChartIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
