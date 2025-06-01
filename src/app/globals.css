@@ -8,10 +8,10 @@
     --background: 0 0% 5%; /* Very dark, near-black */
     --foreground: 0 0% 88%;
 
-    --card: 240 2% 14% / 0.75; /* Dark gray, semi-transparent for blur */
+    --card: 240 2% 12% / 0.75; /* Darker gray, semi-transparent for blur */
     --card-foreground: 0 0% 88%;
 
-    --popover: 240 2% 14% / 0.75; /* Matches card, semi-transparent for blur */
+    --popover: 240 2% 12% / 0.75; /* Matches card, semi-transparent for blur */
     --popover-foreground: 0 0% 88%;
 
     --primary: 260 85% 60%; /* Vibrant Purple */
@@ -60,9 +60,9 @@
   .dark {
     --background: 0 0% 5%;
     --foreground: 0 0% 88%;
-    --card: 240 2% 14% / 0.75;
+    --card: 240 2% 12% / 0.75;
     --card-foreground: 0 0% 88%;
-    --popover: 240 2% 14% / 0.75;
+    --popover: 240 2% 12% / 0.75;
     --popover-foreground: 0 0% 88%;
     --primary: 260 85% 60%;
     --primary-foreground: 0 0% 100%;
