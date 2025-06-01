@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
@@ -19,6 +19,27 @@ export default function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>(mockBudgets);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  const [formattedPeriods, setFormattedPeriods] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const newFormattedPeriods: Record<string, string> = {};
+    budgets.forEach(budget => {
+      try {
+        const startDate = new Date(budget.startDate);
+        const endDate = new Date(budget.endDate);
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          newFormattedPeriods[budget.id] = `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
+        } else {
+          newFormattedPeriods[budget.id] = "Invalid date";
+        }
+      } catch (error) {
+        console.error("Error formatting date for budget:", budget.id, error);
+        newFormattedPeriods[budget.id] = "Date error";
+      }
+    });
+    setFormattedPeriods(newFormattedPeriods);
+  }, [budgets]);
+
 
   const addBudget = (newBudget: Omit<Budget, 'id' | 'spent'>) => {
     setBudgets(prev => [{ ...newBudget, id: String(Date.now()), spent: 0 }, ...prev]);
@@ -58,7 +79,7 @@ export default function BudgetsPage() {
           {budgets.map((budget) => {
             const progress = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
             const isOverspent = budget.spent > budget.amount;
-            const period = `${format(new Date(budget.startDate), "MMM d")} - ${format(new Date(budget.endDate), "MMM d, yyyy")}`;
+            const period = formattedPeriods[budget.id] || "Loading period...";
 
             return (
               <Card key={budget.id} className="flex flex-col">
@@ -91,7 +112,7 @@ export default function BudgetsPage() {
                     <Progress value={progress} className="h-3" indicatorClassName={isOverspent ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'} />
                   </div>
                   <p className={`text-sm ${isOverspent ? 'text-red-400' : 'text-green-400'}`}>
-                    {isOverspent 
+                    {isOverspent
                       ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`
                       : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`}
                   </p>
