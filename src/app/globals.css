@@ -30,7 +30,7 @@
     --chart-3: 180 70% 52%;
     --chart-4: 180 80% 42%;
     --chart-5: 180 90% 32%;
-    --radius: 1rem; /* Increased for more rounded corners */
+    --radius: 1.5rem; /* Significantly increased for more rounded corners */
 
     --sidebar-background: 0 0% 5%; /* #0C0C0C */
     --sidebar-foreground: 0 0% 83%; /* #D3D3D3 */
@@ -62,7 +62,7 @@
     --border: 0 0% 13%; /* #202020 */
     --input: 0 0% 10%; /* #1A1A1A */
     --ring: 180 50% 72%; /* #98D8D8 */
-    --radius: 1rem; /* Increased for more rounded corners */
+    --radius: 1.5rem; /* Significantly increased for more rounded corners */
 
     --chart-1: 180 50% 72%;
     --chart-2: 180 60% 62%;
