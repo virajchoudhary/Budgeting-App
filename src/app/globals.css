@@ -98,7 +98,7 @@
 
 @layer utilities {
   .animate-content-fade-in {
-    animation: content-fade-in 0.3s ease-out forwards; /* Faster duration */
+    animation: content-fade-in 0.25s ease-out forwards; /* Faster duration */
     will-change: opacity; /* Hint for browser optimization */
   }
 
