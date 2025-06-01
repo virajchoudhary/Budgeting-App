@@ -16,7 +16,7 @@ interface BudgetOverviewProps {
 export function BudgetOverview({ budgets }: BudgetOverviewProps) {
   const { currency } = useSettings();
   return (
-    <Card className="shadow-lg">
+    <Card className="hover:shadow-xl hover:scale-100">
       <CardHeader>
         <CardTitle className="text-xl font-semibold">Budget Overview</CardTitle>
       </CardHeader>
