@@ -1,3 +1,4 @@
+
 export interface Transaction {
   id: string;
   date: string; // ISO string
@@ -23,6 +24,7 @@ export interface SavingsGoal {
   targetAmount: number;
   currentAmount: number;
   deadline?: string; // ISO string, optional
+  aiTips?: string; // For storing AI generated tips
 }
 
 export type TransactionCategory = 
