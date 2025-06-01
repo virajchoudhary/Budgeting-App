@@ -8,7 +8,7 @@ import { PlusCircle, Upload } from 'lucide-react';
 import { SummaryCard } from '@/components/dashboard/summary-card';
 import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { BudgetOverview } from '@/components/dashboard/budget-overview';
-import { SpendingCategoryChart } from '@/components/dashboard/spending-category-chart'; // Import new chart
+import { SpendingCategoryChart } from '@/components/dashboard/spending-category-chart';
 import type { Transaction, Budget } from '@/types';
 import { mockTransactions, mockBudgets } from '@/lib/mock-data';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ import Link from 'next/link';
 interface CategorySpending {
   name: string;
   value: number;
-  fill: string; // Placeholder, will be assigned in the chart component
+  fill: string; 
 }
 
 export default function DashboardPage() {
@@ -27,9 +27,8 @@ export default function DashboardPage() {
   const [categorySpending, setCategorySpending] = useState<CategorySpending[]>([]);
 
   useEffect(() => {
-    // Simulate fetching data
-    setTransactions(mockTransactions.slice(0, 5)); // Show recent 5
-    setBudgets(mockBudgets.slice(0,3)); // Show top 3
+    setTransactions(mockTransactions.slice(0, 5)); 
+    setBudgets(mockBudgets.slice(0,3)); 
 
     let income = 0;
     let expenses = 0;
@@ -40,7 +39,7 @@ export default function DashboardPage() {
         income += t.amount;
       } else {
         expenses += Math.abs(t.amount);
-        if (t.category !== 'Income' && t.category !== 'Uncategorized') { // Exclude non-expense categories from chart
+        if (t.category !== 'Income' && t.category !== 'Uncategorized') { 
           spendingByCat[t.category] = (spendingByCat[t.category] || 0) + Math.abs(t.amount);
         }
       }
@@ -52,10 +51,10 @@ export default function DashboardPage() {
       .map(([name, value]) => ({
         name,
         value,
-        fill: '', // Color will be assigned by the chart component
+        fill: '', 
       }))
-      .sort((a, b) => b.value - a.value) // Sort by most spent
-      .slice(0, 6); // Take top 6 categories for chart readability
+      .sort((a, b) => b.value - a.value) 
+      .slice(0, 6); 
 
     setCategorySpending(formattedSpendingData);
 
@@ -64,38 +63,38 @@ export default function DashboardPage() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div className="space-y-6"> {/* Reduced space */}
+    <div className="space-y-8"> {/* Increased overall spacing */}
       <PageHeader
         title="Overview"
-        description="Your financial snapshot." /* Shorter description */
+        description="Your financial snapshot at a glance." 
         actions={
           <>
             <Link href="/transactions#add" passHref>
-              <Button size="sm"> {/* Smaller button */}
-                <PlusCircle className="mr-1.5 h-4 w-4" /> Add Transaction
+              <Button> 
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction {/* Adjusted icon margin */}
               </Button>
             </Link>
             <Link href="/import" passHref>
-              <Button variant="outline" size="sm"> {/* Smaller button */}
-                <Upload className="mr-1.5 h-4 w-4" /> Import
+              <Button variant="outline"> 
+                <Upload className="mr-2 h-4 w-4" /> Import {/* Adjusted icon margin */}
               </Button>
             </Link>
           </>
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"> {/* Reduced gap */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> {/* Increased gap */}
         <SummaryCard title="Total Income" amount={totalIncome} period="This Month" type="income" />
         <SummaryCard title="Total Expenses" amount={totalExpenses} period="This Month" type="expense" />
         <SummaryCard title="Net Balance" amount={netBalance} period="This Month" type={netBalance >= 0 ? "income" : "expense"} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2"> {/* Reduced gap */}
+      <div className="grid gap-6 lg:grid-cols-2"> {/* Increased gap */}
         <RecentTransactions transactions={transactions} />
-        <SpendingCategoryChart data={categorySpending} /> {/* Add the new chart */}
+        <SpendingCategoryChart data={categorySpending} /> 
       </div>
       
-      <div className="grid gap-4 lg:grid-cols-1"> {/* Budget overview can span full width if it's the only item in its row */}
+      <div className="grid gap-6 lg:grid-cols-1"> {/* Increased gap */}
          <BudgetOverview budgets={budgets} />
       </div>
     </div>

@@ -5,35 +5,35 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%; /* #0A0A0F - Very dark blue/gray */
-    --foreground: 0 0% 98%; /* #FAFAFA - Near white */
+    --background: 240 6% 7%; /* #101114 - Very dark, near black for main background */
+    --foreground: 0 0% 95%; /* #F2F2F2 - Slightly off-white for better readability */
 
-    --card: 240 4% 9%; /* #151619 - Slightly lighter dark for cards */
-    --card-foreground: 0 0% 98%; /* #FAFAFA */
+    --card: 240 4% 10%; /* #18191C - Slightly lighter dark for cards, distinct but subtle */
+    --card-foreground: 0 0% 95%; /* #F2F2F2 */
 
-    --popover: 240 10% 3.9%; /* #0A0A0F */
-    --popover-foreground: 0 0% 98%; /* #FAFAFA */
+    --popover: 240 6% 7%; /* #101114 */
+    --popover-foreground: 0 0% 95%; /* #F2F2F2 */
 
-    --primary: 180 50% 65%; /* #80CBC4 - Teal, slightly desaturated */
-    --primary-foreground: 240 10% 3.9%; /* #0A0A0F */
+    --primary: 180 50% 65%; /* #80CBC4 - Teal, keep as is */
+    --primary-foreground: 240 10% 3.9%; /* #0A0A0F - Keep as is */
 
-    --secondary: 240 3.7% 15.9%; /* #23252A - Darker muted elements */
-    --secondary-foreground: 0 0% 98%; /* #FAFAFA */
+    --secondary: 240 3.7% 18%; /* #2A2C33 - Darker muted for secondary elements */
+    --secondary-foreground: 0 0% 95%; /* #F2F2F2 */
 
-    --muted: 240 3.7% 15.9%; /* #23252A */
-    --muted-foreground: 240 5% 64.9%; /* #A0A3AF - Lighter muted text */
+    --muted: 240 3.7% 18%; /* #2A2C33 */
+    --muted-foreground: 240 5% 70%; /* #AEB2C1 - Softer muted text */
 
-    --accent: 180 50% 65%; /* #80CBC4 */
-    --accent-foreground: 240 10% 3.9%; /* #0A0A0F */
+    --accent: 180 50% 65%; /* #80CBC4 - Keep as is */
+    --accent-foreground: 240 10% 3.9%; /* #0A0A0F - Keep as is */
 
-    --destructive: 0 72.2% 50.6%; /* #E53E3E */
-    --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+    --destructive: 0 72.2% 50.6%; /* #E53E3E - Keep as is */
+    --destructive-foreground: 0 0% 98%; /* #FAFAFA - Keep as is */
 
-    --border: 240 3.7% 15.9%; /* #23252A - Subtle border */
-    --input: 240 3.7% 15.9%; /* #23252A */
-    --ring: 180 50% 75%; /* #98D8D8 - Brighter ring for focus */
+    --border: 240 4% 15%; /* #222429 - Very subtle border */
+    --input: 240 3.7% 18%; /* #2A2C33 */
+    --ring: 180 50% 75%; /* #98D8D8 - Keep as is */
 
-    --radius: 0.75rem; /* Reduced for a sleeker, modern look (12px) */
+    --radius: 0.75rem; /* Consistent reduced radius */
 
     --chart-1: 180 50% 65%;
     --chart-2: 180 60% 55%;
@@ -45,35 +45,35 @@
     --chart-8: 180 65% 50%;
 
 
-    --sidebar-background: 240 6% 7%; /* #101114 - Very dark, slightly distinct from main bg */
+    --sidebar-background: 240 5% 8%; /* #131417 - Slightly different dark for sidebar */
     --sidebar-foreground: 0 0% 90%; /* #E5E5E5 */
-    --sidebar-primary: 180 50% 65%; /* #80CBC4 */
+    --sidebar-primary: 180 50% 70%; /* #8DD1C9 - Slightly brighter primary for sidebar text */
     --sidebar-primary-foreground: 240 10% 3.9%;
-    --sidebar-accent: 240 4% 12%; /* #1D1E22 - Subtle accent for sidebar hover */
+    --sidebar-accent: 240 4% 14%; /* #202125 - Subtle accent for sidebar hover (typographic) */
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 12%; /* #1E1F24 - Sidebar border */
     --sidebar-ring: 180 50% 75%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 4% 9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --background: 240 6% 7%;
+    --foreground: 0 0% 95%;
+    --card: 240 4% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 6% 7%;
+    --popover-foreground: 0 0% 95%;
     --primary: 180 50% 65%;
     --primary-foreground: 240 10% 3.9%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --secondary: 240 3.7% 18%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 240 3.7% 18%;
+    --muted-foreground: 240 5% 70%;
     --accent: 180 50% 65%;
     --accent-foreground: 240 10% 3.9%;
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 4% 15%;
+    --input: 240 3.7% 18%;
     --ring: 180 50% 75%;
     --radius: 0.75rem;
 
@@ -86,11 +86,11 @@
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
-    --sidebar-background: 240 6% 7%;
+    --sidebar-background: 240 5% 8%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 180 50% 65%;
+    --sidebar-primary: 180 50% 70%;
     --sidebar-primary-foreground: 240 10% 3.9%;
-    --sidebar-accent: 240 4% 12%;
+    --sidebar-accent: 240 4% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 12%;
     --sidebar-ring: 180 50% 75%;
@@ -107,14 +107,14 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     font-size: 1rem; 
-    line-height: 1.65;
+    line-height: 1.65; /* Increased for better readability */
     @apply antialiased;
   }
 }
 
 @layer utilities {
   .animate-content-fade-in {
-    animation: content-fade-in 0.2s ease-out forwards; /* Adjusted duration and timing */
+    animation: content-fade-in 0.2s ease-out forwards; /* Quick and smooth */
     will-change: opacity; 
   }
 

@@ -17,9 +17,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarInset className="flex-1 bg-transparent">
         <div
           key={pathname}
-          className="p-4 sm:p-6 lg:p-8 animate-content-fade-in"
+          className="p-6 sm:p-8 lg:p-10 animate-content-fade-in" /* Increased padding */
         >
-         <div className="mx-auto max-w-7xl">
+         <div className="mx-auto max-w-screen-xl"> {/* Wider max-width */}
             {children}
           </div>
         </div>

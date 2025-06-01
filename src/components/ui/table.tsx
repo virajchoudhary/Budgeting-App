@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -20,7 +21,7 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  <thead ref={ref} className={cn("[&_tr]:border-b [&_tr]:border-border/60", className)} {...props} /> /* Subtler border */
 ))
 TableHeader.displayName = "TableHeader"
 
@@ -43,7 +44,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+      "border-t border-border/60 bg-muted/50 font-medium [&>tr]:last:border-b-0", /* Subtler border */
       className
     )}
     {...props}
@@ -58,7 +59,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b data-[state=selected]:bg-muted", // Removed hover:bg-muted/50 and transition-colors
+      "border-b border-border/60", /* Subtler border, remove selected state for now */
       className
     )}
     {...props}

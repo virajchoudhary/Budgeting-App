@@ -25,7 +25,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3.5rem" // Slightly increased for better icon spacing
+const SIDEBAR_WIDTH_ICON = "3.5rem" 
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -137,7 +137,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar/85 has-[[data-variant=inset]]:backdrop-blur-md", 
+              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar-background/85 has-[[data-variant=inset]]:backdrop-blur-md", 
               className
             )}
             ref={ref}
@@ -181,7 +181,7 @@ const Sidebar = React.forwardRef<
             data-sidebar="sidebar" 
             data-mobile="true"
             className={cn(
-                "w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden", 
+                "w-[--sidebar-width] bg-sidebar-background p-0 text-sidebar-foreground [&>button]:hidden", 
                 "border-r border-sidebar-border" 
             )}
             style={
@@ -235,8 +235,8 @@ const Sidebar = React.forwardRef<
             data-sidebar="sidebar" 
             className={cn(
               "flex h-full w-full flex-col text-sidebar-foreground",
-              variant === "sidebar" && "bg-sidebar group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
-              (variant === "floating" || variant === "inset") && "bg-sidebar rounded-lg border border-sidebar-border shadow-md"
+              variant === "sidebar" && "bg-sidebar-background group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
+              (variant === "floating" || variant === "inset") && "bg-sidebar-background rounded-lg border border-sidebar-border shadow-md"
             )}
           >
             {children}
@@ -292,7 +292,7 @@ const SidebarRail = React.forwardRef<
         "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[1px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex", 
         "[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize",
         "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize",
-        "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar/90 group-data-[collapsible=offcanvas]:hover:backdrop-blur-sm",
+        "group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar-background/90 group-data-[collapsible=offcanvas]:hover:backdrop-blur-sm",
         "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2",
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
         className
@@ -500,11 +500,11 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding,color,background-color] focus-visible:ring-1 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-semibold data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!h-9 group-data-[collapsible=icon]:!w-9 group-data-[collapsible=icon]:!p-2.5 group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding,color,background-color] focus-visible:ring-1 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-semibold group-data-[collapsible=icon]:!h-9 group-data-[collapsible=icon]:!w-9 group-data-[collapsible=icon]:!p-2.5 group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
+        default: "text-sidebar-foreground/80 hover:text-sidebar-foreground data-[active=true]:text-sidebar-primary data-[state=open]:text-sidebar-primary", // Typographic hover/active
         outline:
           "bg-transparent shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
@@ -522,8 +522,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement, 
-  React.ComponentProps<"button"> & { 
+  HTMLButtonElement, // Corrected type
+  React.ComponentProps<"button"> & { // Corrected props type
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -546,20 +546,23 @@ const SidebarMenuButton = React.forwardRef<
     const { isMobile, state } = useSidebar()
     const mounted = useMounted();
 
-    const buttonContent = !asChild ? (
-      <>
-        {React.Children.map(children, (childInput) => {
+    const buttonContent = 
+      !asChild && mounted && state === "collapsed" && !isMobile ? (
+        React.Children.map(children, (childInput) => {
+          if (React.isValidElement(childInput) && typeof childInput.type !== 'string' && (childInput.type as any).displayName?.includes('Icon')) {
+            return React.cloneElement(childInput as React.ReactElement<any>, { className: cn((childInput.props as any).className, "group-data-[collapsible=icon]:mx-auto") });
+          }
+          return null; // Hide text span when collapsed and not mobile
+        })
+      ) : (
+        React.Children.map(children, (childInput) => {
           let currentChild = childInput;
           if (React.isValidElement(currentChild) && typeof currentChild.type !== 'string' && (currentChild.type as any).displayName?.includes('Icon')) {
             currentChild = React.cloneElement(currentChild as React.ReactElement<any>, { className: cn((currentChild.props as any).className, "group-data-[collapsible=icon]:mx-auto") });
           }
-          if (React.isValidElement(currentChild) && currentChild.type === 'span' && state === 'collapsed' && !isMobile && mounted) { 
-            return null;
-          }
           return currentChild;
-        })}
-      </>
-    ) : children;
+        })
+    );
     
     const buttonElement = (
       <Comp
