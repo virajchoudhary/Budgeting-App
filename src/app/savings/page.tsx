@@ -57,7 +57,7 @@ export default function SavingsPage() {
           {goals.map((goal) => {
             const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
             return (
-              <Card key={goal.id} className="shadow-lg flex flex-col">
+              <Card key={goal.id} className="flex flex-col">
                 <CardHeader>
                    <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
@@ -68,11 +68,11 @@ export default function SavingsPage() {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}}>
+                       <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}}>
                         <Edit2 className="h-4 w-4" />
                          <span className="sr-only">Edit</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => deleteGoal(goal.id)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteGoal(goal.id)}>
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>
                       </Button>

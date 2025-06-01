@@ -51,7 +51,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
 
   return (
     <>
-      <Card className="shadow-lg">
+      <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -76,7 +76,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent">
                           <MoreVertical className="h-4 w-4" />
                            <span className="sr-only">Actions</span>
                         </Button>

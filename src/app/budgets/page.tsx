@@ -61,7 +61,7 @@ export default function BudgetsPage() {
             const period = `${format(new Date(budget.startDate), "MMM d")} - ${format(new Date(budget.endDate), "MMM d, yyyy")}`;
 
             return (
-              <Card key={budget.id} className="shadow-lg flex flex-col">
+              <Card key={budget.id} className="flex flex-col">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
@@ -69,11 +69,11 @@ export default function BudgetsPage() {
                       <CardDescription>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></CardDescription>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }}>
                         <Edit2 className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => deleteBudget(budget.id)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteBudget(budget.id)}>
                         <Trash2 className="h-4 w-4" />
                          <span className="sr-only">Delete</span>
                       </Button>
