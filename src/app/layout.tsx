@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -6,8 +7,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { SettingsProvider } from '@/contexts/settings-context';
 
 export const metadata: Metadata = {
-  title: 'Synapse Finance',
-  description: 'Manage your finances with Synapse Finance',
+  title: 'Kamski',
+  description: 'Personal finance management, reimagined. Intuitive, minimalist, and powerful.',
 };
 
 export default function RootLayout({

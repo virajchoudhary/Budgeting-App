@@ -5,95 +5,96 @@
 
 @layer base {
   :root {
-    --background: 240 6% 7%; /* #101114 - Very dark, near black for main background */
-    --foreground: 0 0% 95%; /* #F2F2F2 - Slightly off-white for better readability */
+    --background: 0 0% 10%; /* #1A1A1A kBackgroundColor */
+    --foreground: 0 0% 88%; /* #E0E0E0 kForegroundColor */
 
-    --card: 240 4% 10%; /* #18191C - Slightly lighter dark for cards, distinct but subtle */
-    --card-foreground: 0 0% 95%; /* #F2F2F2 */
+    --card: 240 2% 18%; /* #2C2C2E kCardColor */
+    --card-foreground: 0 0% 88%; /* #E0E0E0 */
 
-    --popover: 240 6% 7%; /* #101114 */
-    --popover-foreground: 0 0% 95%; /* #F2F2F2 */
+    --popover: 0 0% 10%; /* kBackgroundColor */
+    --popover-foreground: 0 0% 88%; /* kForegroundColor */
 
-    --primary: 180 50% 65%; /* #80CBC4 - Teal, keep as is */
-    --primary-foreground: 240 10% 3.9%; /* #0A0A0F - Keep as is */
+    --primary: 187 100% 42%; /* #00BCD4 kPrimaryColor / kAccentColor */
+    --primary-foreground: 0 0% 100%; /* White text on vibrant teal */
 
-    --secondary: 240 3.7% 18%; /* #2A2C33 - Darker muted for secondary elements */
-    --secondary-foreground: 0 0% 95%; /* #F2F2F2 */
+    --secondary: 0 0% 22%; /* Slightly lighter gray than card for secondary elements */
+    --secondary-foreground: 0 0% 88%; /* kForegroundColor */
 
-    --muted: 240 3.7% 18%; /* #2A2C33 */
-    --muted-foreground: 240 5% 70%; /* #AEB2C1 - Softer muted text */
+    --muted: 0 0% 15%; /* Subtle gray for muted elements */
+    --muted-foreground: 0 0% 65%; /* Lighter gray for muted text */
 
-    --accent: 180 50% 65%; /* #80CBC4 - Keep as is */
-    --accent-foreground: 240 10% 3.9%; /* #0A0A0F - Keep as is */
+    --accent: 187 100% 42%; /* #00BCD4 kPrimaryColor / kAccentColor */
+    --accent-foreground: 0 0% 100%; /* White text on vibrant teal */
 
-    --destructive: 0 72.2% 50.6%; /* #E53E3E - Keep as is */
-    --destructive-foreground: 0 0% 98%; /* #FAFAFA - Keep as is */
+    --destructive: 0 72.2% 50.6%; /* Standard red for destructive actions */
+    --destructive-foreground: 0 0% 98%; /* Light text on red */
 
-    --border: 240 4% 15%; /* #222429 - Very subtle border */
-    --input: 240 3.7% 18%; /* #2A2C33 */
-    --ring: 180 50% 75%; /* #98D8D8 - Keep as is */
+    --border: 0 0% 13%; /* Very subtle border, slightly lighter than background */
+    --input: 240 2% 20%; /* Slightly distinct from card for input fields */
+    --ring: 187 100% 50%; /* Lighter version of primary for focus rings */
 
-    --radius: 0.75rem; /* Consistent reduced radius */
+    --radius: 1rem; /* kDefaultBorderRadius (16.0) */
 
-    --chart-1: 180 50% 65%;
-    --chart-2: 180 60% 55%;
-    --chart-3: 180 70% 45%;
-    --chart-4: 180 80% 35%;
-    --chart-5: 180 90% 25%;
-    --chart-6: 180 40% 75%;
+    /* Chart colors - retain existing or refine if needed */
+    --chart-1: 187 70% 50%; /* Variations of primary/accent */
+    --chart-2: 187 80% 60%;
+    --chart-3: 187 90% 70%;
+    --chart-4: 210 70% 60%; /* A complementary blue */
+    --chart-5: 210 80% 70%;
+    --chart-6: 160 60% 50%; /* A complementary green */
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
-
-    --sidebar-background: 240 5% 8%; /* #131417 - Slightly different dark for sidebar */
-    --sidebar-foreground: 0 0% 90%; /* #E5E5E5 */
-    --sidebar-primary: 180 50% 70%; /* #8DD1C9 - Slightly brighter primary for sidebar text */
-    --sidebar-primary-foreground: 240 10% 3.9%;
-    --sidebar-accent: 240 4% 14%; /* #202125 - Subtle accent for sidebar hover (typographic) */
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 12%; /* #1E1F24 - Sidebar border */
-    --sidebar-ring: 180 50% 75%;
+    /* Sidebar specific colors */
+    --sidebar-background: 0 0% 9%; /* Slightly darker or same as main bg for distinct sidebar */
+    --sidebar-foreground: 0 0% 85%; /* Slightly softer foreground for sidebar */
+    --sidebar-primary: 187 100% 55%; /* Brighter teal for active/highlighted sidebar items */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 14%; /* Subtle accent for sidebar hover (e.g. very light bg tint) */
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 12%; /* Sidebar border */
+    --sidebar-ring: 187 100% 50%;
   }
 
   .dark {
-    --background: 240 6% 7%;
-    --foreground: 0 0% 95%;
-    --card: 240 4% 10%;
-    --card-foreground: 0 0% 95%;
-    --popover: 240 6% 7%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 180 50% 65%;
-    --primary-foreground: 240 10% 3.9%;
-    --secondary: 240 3.7% 18%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 240 3.7% 18%;
-    --muted-foreground: 240 5% 70%;
-    --accent: 180 50% 65%;
-    --accent-foreground: 240 10% 3.9%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 88%;
+    --card: 240 2% 18%;
+    --card-foreground: 0 0% 88%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 88%;
+    --primary: 187 100% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 187 100% 42%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 15%;
-    --input: 240 3.7% 18%;
-    --ring: 180 50% 75%;
-    --radius: 0.75rem;
+    --border: 0 0% 13%;
+    --input: 240 2% 20%;
+    --ring: 187 100% 50%;
+    --radius: 1rem;
 
-    --chart-1: 180 50% 65%;
-    --chart-2: 180 60% 55%;
-    --chart-3: 180 70% 45%;
-    --chart-4: 180 80% 35%;
-    --chart-5: 180 90% 25%;
-    --chart-6: 180 40% 75%;
+    --chart-1: 187 70% 50%;
+    --chart-2: 187 80% 60%;
+    --chart-3: 187 90% 70%;
+    --chart-4: 210 70% 60%;
+    --chart-5: 210 80% 70%;
+    --chart-6: 160 60% 50%;
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
-    --sidebar-background: 240 5% 8%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 180 50% 70%;
-    --sidebar-primary-foreground: 240 10% 3.9%;
-    --sidebar-accent: 240 4% 14%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 12%;
-    --sidebar-ring: 180 50% 75%;
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 187 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 187 100% 50%;
   }
 }
 
@@ -102,12 +103,11 @@
     @apply border-border;
   }
   body {
-    /* Subtle radial gradient for depth */
     background-image: radial-gradient(circle at top center, hsl(var(--background) / 0.98) 0%, hsl(var(--background)) 80%);
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     font-size: 1rem; 
-    line-height: 1.65; /* Increased for better readability */
+    line-height: 1.7; /* Increased for better readability */
     @apply antialiased;
   }
 }

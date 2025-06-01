@@ -14,12 +14,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <AppSidebar />
         <SidebarRail />
       </Sidebar>
-      <SidebarInset className="flex-1 bg-transparent">
+      <SidebarInset className="flex-1 bg-transparent"> {/* Ensure this is transparent */}
         <div
           key={pathname}
-          className="p-6 sm:p-8 lg:p-10 animate-content-fade-in" /* Increased padding */
+          className="p-6 sm:p-8 lg:p-10 animate-content-fade-in" 
         >
-         <div className="mx-auto max-w-screen-xl"> {/* Wider max-width */}
+         <div className="mx-auto max-w-6xl"> {/* Max width as per brief (1200px is ~max-w-6xl) */}
             {children}
           </div>
         </div>

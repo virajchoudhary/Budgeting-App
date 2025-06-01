@@ -63,7 +63,7 @@ export default function DashboardPage() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div className="space-y-8"> {/* Increased overall spacing */}
+    <div className="space-y-10"> {/* Increased overall spacing */}
       <PageHeader
         title="Overview"
         description="Your financial snapshot at a glance." 
@@ -71,30 +71,30 @@ export default function DashboardPage() {
           <>
             <Link href="/transactions#add" passHref>
               <Button> 
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction {/* Adjusted icon margin */}
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction
               </Button>
             </Link>
             <Link href="/import" passHref>
               <Button variant="outline"> 
-                <Upload className="mr-2 h-4 w-4" /> Import {/* Adjusted icon margin */}
+                <Upload className="mr-2 h-4 w-4" /> Import
               </Button>
             </Link>
           </>
         }
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> {/* Increased gap */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> 
         <SummaryCard title="Total Income" amount={totalIncome} period="This Month" type="income" />
         <SummaryCard title="Total Expenses" amount={totalExpenses} period="This Month" type="expense" />
         <SummaryCard title="Net Balance" amount={netBalance} period="This Month" type={netBalance >= 0 ? "income" : "expense"} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2"> {/* Increased gap */}
+      <div className="grid gap-6 lg:grid-cols-2"> 
         <RecentTransactions transactions={transactions} />
         <SpendingCategoryChart data={categorySpending} /> 
       </div>
       
-      <div className="grid gap-6 lg:grid-cols-1"> {/* Increased gap */}
+      <div className="grid gap-6 lg:grid-cols-1"> 
          <BudgetOverview budgets={budgets} />
       </div>
     </div>

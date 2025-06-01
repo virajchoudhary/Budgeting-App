@@ -137,7 +137,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar-background/85 has-[[data-variant=inset]]:backdrop-blur-md", 
+              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-background has-[[data-variant=inset]]:backdrop-blur-md", // Use main background for inset
               className
             )}
             ref={ref}
@@ -200,7 +200,7 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className="group peer hidden md:block" // Removed text-sidebar-foreground here, let children handle
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
@@ -234,9 +234,9 @@ const Sidebar = React.forwardRef<
           <div
             data-sidebar="sidebar" 
             className={cn(
-              "flex h-full w-full flex-col text-sidebar-foreground",
-              variant === "sidebar" && "bg-sidebar-background group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
-              (variant === "floating" || variant === "inset") && "bg-sidebar-background rounded-lg border border-sidebar-border shadow-md"
+              "flex h-full w-full flex-col text-sidebar-foreground bg-sidebar-background", // Use specific sidebar bg and fg
+              variant === "sidebar" && "group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
+              (variant === "floating" || variant === "inset") && "rounded-lg border border-sidebar-border shadow-md"
             )}
           >
             {children}
@@ -311,7 +311,7 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-transparent",
+        "relative flex min-h-svh flex-1 flex-col bg-transparent", // Ensure this is transparent to let body bg show
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-lg md:peer-data-[variant=inset]:shadow-md", 
         className
       )}
@@ -500,11 +500,11 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding,color,background-color] focus-visible:ring-1 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-semibold group-data-[collapsible=icon]:!h-9 group-data-[collapsible=icon]:!w-9 group-data-[collapsible=icon]:!p-2.5 group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding,color,background-color] duration-150 ease-in-out focus-visible:ring-1 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 group-data-[collapsible=icon]:!h-9 group-data-[collapsible=icon]:!w-9 group-data-[collapsible=icon]:!p-2.5 group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "text-sidebar-foreground/80 hover:text-sidebar-foreground data-[active=true]:text-sidebar-primary data-[state=open]:text-sidebar-primary", // Typographic hover/active
+        default: "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 data-[active=true]:text-sidebar-primary data-[active=true]:font-semibold data-[state=open]:text-sidebar-primary",
         outline:
           "bg-transparent shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
@@ -522,8 +522,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement, // Corrected type
-  React.ComponentProps<"button"> & { // Corrected props type
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -552,7 +552,7 @@ const SidebarMenuButton = React.forwardRef<
           if (React.isValidElement(childInput) && typeof childInput.type !== 'string' && (childInput.type as any).displayName?.includes('Icon')) {
             return React.cloneElement(childInput as React.ReactElement<any>, { className: cn((childInput.props as any).className, "group-data-[collapsible=icon]:mx-auto") });
           }
-          return null; // Hide text span when collapsed and not mobile
+          return null;
         })
       ) : (
         React.Children.map(children, (childInput) => {
@@ -573,7 +573,7 @@ const SidebarMenuButton = React.forwardRef<
         className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
         {...props}
       >
-        {buttonContent}
+       {asChild ? children : buttonContent}
       </Comp>
     )
 

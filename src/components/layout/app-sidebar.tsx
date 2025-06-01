@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard } from 'lucide-react';
+import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard } from 'lucide-react'; // Using CreditCard for now
 
 const navItems = [
   { href: '/', label: 'Overview', icon: Home },
@@ -32,7 +32,7 @@ export function AppSidebar() {
       <SidebarHeader className="flex items-center justify-between p-4">
         <Link href="/" className="flex items-center gap-2.5">
           <CreditCard className="h-7 w-7 text-sidebar-primary" /> 
-          <h1 className="text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">Synapse</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">Kamski</h1>
         </Link>
         <div className="md:hidden">
           <SidebarTrigger />
