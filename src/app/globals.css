@@ -5,22 +5,22 @@
 
 @layer base {
   :root {
-    --background: 0 0% 8%; /* Darkened from 10% */
+    --background: 0 0% 5%; /* Darkened to near-black */
     --foreground: 0 0% 88%;
 
-    --card: 240 2% 14% / 0.75; /* Made cards darker, 75% opacity for blur */
+    --card: 240 2% 14% / 0.75; /* Kept from previous blur update */
     --card-foreground: 0 0% 88%;
 
-    --popover: 240 2% 14% / 0.75; /* Popover matches card, 75% opacity for blur */
+    --popover: 240 2% 14% / 0.75; /* Kept from previous blur update, matches card */
     --popover-foreground: 0 0% 88%;
 
     --primary: 187 100% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 20%; /* Darkened from 22% */
+    --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 88%;
 
-    --muted: 0 0% 12%; /* Darkened from 15% */
+    --muted: 0 0% 12%;
     --muted-foreground: 0 0% 65%;
 
     --accent: 187 100% 42%;
@@ -29,8 +29,8 @@
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 10%; /* Darkened from 13% */
-    --input: 240 2% 18%; /* Darkened from 20% */
+    --border: 0 0% 10%;
+    --input: 240 2% 18%;
     --ring: 187 100% 50%;
 
     --radius: 1rem;
@@ -46,22 +46,22 @@
     --chart-8: 180 65% 50%;
 
     /* Sidebar specific colors */
-    --sidebar-background: 0 0% 7%; /* Darkened from 9% */
+    --sidebar-background: 0 0% 5%; /* Darkened to match main background */
     --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 187 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 12%; /* Darkened from 14% */
+    --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 9%; /* Darkened from 12% */
+    --sidebar-border: 0 0% 9%;
     --sidebar-ring: 187 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 8%;
+    --background: 0 0% 5%; /* Darkened to near-black */
     --foreground: 0 0% 88%;
-    --card: 240 2% 14% / 0.75; /* Made cards darker, 75% opacity for blur */
+    --card: 240 2% 14% / 0.75; /* Kept from previous blur update */
     --card-foreground: 0 0% 88%;
-    --popover: 240 2% 14% / 0.75; /* Popover matches card, 75% opacity for blur */
+    --popover: 240 2% 14% / 0.75; /* Kept from previous blur update, matches card */
     --popover-foreground: 0 0% 88%;
     --primary: 187 100% 42%;
     --primary-foreground: 0 0% 100%;
@@ -87,7 +87,7 @@
     --chart-7: 180 55% 60%;
     --chart-8: 180 65% 50%;
 
-    --sidebar-background: 0 0% 7%;
+    --sidebar-background: 0 0% 5%; /* Darkened to match main background */
     --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 187 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -106,7 +106,7 @@
     background-image: radial-gradient(circle at top center, hsl(var(--background) / 0.98) 0%, hsl(var(--background)) 80%);
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
-    font-size: 1rem; 
+    font-size: 1rem;
     line-height: 1.7;
     @apply antialiased;
   }
@@ -115,7 +115,7 @@
 @layer utilities {
   .animate-content-fade-in {
     animation: content-fade-in 0.2s ease-out forwards;
-    will-change: opacity; 
+    will-change: opacity;
   }
 
   @keyframes content-fade-in {
@@ -127,4 +127,3 @@
     }
   }
 }
-
