@@ -95,3 +95,18 @@
     @apply antialiased;
   }
 }
+
+@layer utilities {
+  .animate-content-fade-in {
+    animation: content-fade-in 0.3s ease-out forwards;
+  }
+
+  @keyframes content-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
