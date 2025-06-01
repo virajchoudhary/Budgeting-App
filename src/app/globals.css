@@ -7,7 +7,7 @@
   :root {
     --background: 0 0% 3%; /* #080808 */
     --foreground: 0 0% 83%; /* #D3D3D3 */
-    --card: 0 0% 10%; /* #1A1A1A */
+    --card: 0 0% 10%; /* #1A1A1A - Base for card, opacity applied in component */
     --card-foreground: 0 0% 83%; /* #D3D3D3 */
     --popover: 0 0% 10%; /* #1A1A1A */
     --popover-foreground: 0 0% 83%; /* #D3D3D3 */
@@ -32,7 +32,7 @@
     --chart-5: 180 90% 32%;
     --radius: 1.5rem; /* Significantly increased for more rounded corners */
 
-    --sidebar-background: 0 0% 5%; /* #0C0C0C */
+    --sidebar-background: 0 0% 5%; /* #0C0C0C - Base for sidebar, opacity applied in component */
     --sidebar-foreground: 0 0% 83%; /* #D3D3D3 */
     --sidebar-primary: 180 50% 72%; /* #98D8D8 */
     --sidebar-primary-foreground: 0 0% 3%; /* #080808 */
@@ -86,9 +86,12 @@
     @apply border-border;
   }
   body {
+    /* Subtle radial gradient for depth */
+    background-image: radial-gradient(circle at top center, hsl(var(--background) / 0.95) 0%, hsl(var(--background)) 70%);
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif; /* Explicitly set Inter for body */
     font-size: 1rem; 
-    line-height: 1.65; 
+    line-height: 1.65;
+    @apply antialiased;
   }
 }
