@@ -13,8 +13,8 @@ import { AddSavingsGoalDialog } from '@/components/savings/add-savings-goal-dial
 import { format } from 'date-fns';
 import { useSettings } from '@/contexts/settings-context';
 import { generateSavingsGoalTips } from '@/ai/flows/savings-goal-tips-flow'; // Import the new flow
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
 
 interface GoalLoadingState {
   [goalId: string]: boolean;
@@ -82,74 +82,81 @@ export default function SavingsPage() {
       />
 
       {goals.length === 0 ? (
+        <ScrollFadeIn>
          <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
             No savings goals set yet. Click "Add Savings Goal" to get started.
           </CardContent>
         </Card>
+        </ScrollFadeIn>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {goals.map((goal) => {
+          {goals.map((goal, index) => {
             const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
             const isLoading = loadingTips[goal.id];
+            const delayClass = `delay-${index * 100}`;
+            
+
             return (
-              <Card key={goal.id} className="flex flex-col hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01] transform transition-transform duration-300">
-                <CardHeader>
-                   <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <PiggyBank className="h-8 w-8 text-primary" />
-                      <div>
-                        <CardTitle className="text-xl">{goal.name}</CardTitle>
-                        {goal.deadline && <CardDescription>Deadline: {format(new Date(goal.deadline), "MMM dd, yyyy")}</CardDescription>}
+              <ScrollFadeIn key={goal.id} delay={delayClass as any}>
+                <Card className="flex flex-col hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01] transform transition-transform duration-300 h-full">
+                  <CardHeader>
+                     <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-3">
+                        <PiggyBank className="h-8 w-8 text-primary" />
+                        <div>
+                          <CardTitle className="text-xl">{goal.name}</CardTitle>
+                          {goal.deadline && <CardDescription>Deadline: {format(new Date(goal.deadline), "MMM dd, yyyy")}</CardDescription>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}}>
+                          <Edit2 className="h-4 w-4" />
+                           <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteGoal(goal.id)}>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                       <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}}>
-                        <Edit2 className="h-4 w-4" />
-                         <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteGoal(goal.id)}>
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-4">
-                  <div>
-                    <Progress value={progress} className="h-3 mb-2" />
-                    <div className="flex justify-between text-sm">
-                      <span>Saved: {goal.currentAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
-                      <span>Target: {goal.targetAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
-                    </div>
-                  </div>
-                  {goal.aiTips ? (
-                    <div className="space-y-2 pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                        <Sparkles className="h-4 w-4" />
-                        <span>AI Coach Tips:</span>
+                  </CardHeader>
+                  <CardContent className="flex-grow space-y-4">
+                    <div>
+                      <Progress value={progress} className="h-3 mb-2" />
+                      <div className="flex justify-between text-sm">
+                        <span>Saved: {goal.currentAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
+                        <span>Target: {goal.targetAmount.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
                       </div>
-                      <pre className="whitespace-pre-wrap text-xs p-3 bg-muted/30 rounded-md text-muted-foreground leading-relaxed">
-                        {goal.aiTips}
-                      </pre>
                     </div>
-                  ) : (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => handleFetchAiTips(goal)} 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" />}
-                      {isLoading ? 'Getting Tips...' : 'Get AI Tips'}
-                    </Button>
-                  )}
-                </CardContent>
-                <CardFooter>
-                  <p className="text-sm text-primary">{progress.toFixed(1)}% Complete</p>
-                </CardFooter>
-              </Card>
+                    {goal.aiTips ? (
+                      <div className="space-y-2 pt-2 border-t border-border/50">
+                        <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                          <Sparkles className="h-4 w-4" />
+                          <span>AI Coach Tips:</span>
+                        </div>
+                        <pre className="whitespace-pre-wrap text-xs p-3 bg-muted/30 rounded-md text-muted-foreground leading-relaxed">
+                          {goal.aiTips}
+                        </pre>
+                      </div>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => handleFetchAiTips(goal)} 
+                        disabled={isLoading}
+                      >
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" />}
+                        {isLoading ? 'Getting Tips...' : 'Get AI Tips'}
+                      </Button>
+                    )}
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-sm text-primary">{progress.toFixed(1)}% Complete</p>
+                  </CardFooter>
+                </Card>
+              </ScrollFadeIn>
             );
           })}
         </div>
@@ -164,3 +171,4 @@ export default function SavingsPage() {
     </div>
   );
 }
+

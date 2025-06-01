@@ -12,6 +12,7 @@ import { SpendingCategoryChart } from '@/components/dashboard/spending-category-
 import type { Transaction, Budget } from '@/types';
 import { mockTransactions, mockBudgets } from '@/lib/mock-data';
 import Link from 'next/link';
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
 
 interface CategorySpending {
   name: string;
@@ -84,18 +85,30 @@ export default function DashboardPage() {
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"> 
-        <SummaryCard title="Total Income" amount={totalIncome} period="This Month" type="income" />
-        <SummaryCard title="Total Expenses" amount={totalExpenses} period="This Month" type="expense" />
-        <SummaryCard title="Net Balance" amount={netBalance} period="This Month" type={netBalance >= 0 ? "income" : "expense"} />
+        <ScrollFadeIn>
+          <SummaryCard title="Total Income" amount={totalIncome} period="This Month" type="income" />
+        </ScrollFadeIn>
+        <ScrollFadeIn delay="delay-100">
+          <SummaryCard title="Total Expenses" amount={totalExpenses} period="This Month" type="expense" />
+        </ScrollFadeIn>
+        <ScrollFadeIn delay="delay-200">
+          <SummaryCard title="Net Balance" amount={netBalance} period="This Month" type={netBalance >= 0 ? "income" : "expense"} />
+        </ScrollFadeIn>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2"> 
-        <RecentTransactions transactions={transactions} />
-        <SpendingCategoryChart data={categorySpending} /> 
+        <ScrollFadeIn>
+          <RecentTransactions transactions={transactions} />
+        </ScrollFadeIn>
+        <ScrollFadeIn delay="delay-100">
+          <SpendingCategoryChart data={categorySpending} /> 
+        </ScrollFadeIn>
       </div>
       
       <div className="grid gap-6 lg:grid-cols-1"> 
-         <BudgetOverview budgets={budgets} />
+        <ScrollFadeIn>
+           <BudgetOverview budgets={budgets} />
+        </ScrollFadeIn>
       </div>
     </div>
   );

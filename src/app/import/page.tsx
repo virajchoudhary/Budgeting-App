@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { UploadCloud, FileText, Loader2 } from 'lucide-react'; // Replaced TableIcon with FileText
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast"; // For notifications
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
 
 type ParsedRow = Record<string, string>;
 const TRANSACTION_FIELDS = ["date", "description", "amount", "category"] as const;
@@ -126,89 +127,90 @@ export default function ImportPage() {
         title="Import Transactions"
         description="Upload a CSV or PDF file to add multiple transactions at once."
       />
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Upload File</CardTitle>
-          <CardDescription>Select your CSV or PDF file. For CSVs, map columns to transaction fields.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <Label htmlFor="file-upload" className="mb-2 block">Choose File</Label>
-            <div className="flex items-center gap-3">
-              <Input id="file-upload" type="file" accept=".csv,.pdf" onChange={handleFileChange} className="max-w-sm"/>
-              {file && <p className="text-sm text-muted-foreground flex items-center gap-1"> <FileText className="h-4 w-4" /> {file.name} ({fileType?.toUpperCase()})</p>}
-            </div>
-          </div>
-
-          {fileType === 'csv' && headers.length > 0 && (
-            <div className="space-y-4 p-4 border rounded-md bg-muted/20">
-              <h3 className="font-medium text-lg">Map CSV Columns</h3>
-              <p className="text-sm text-muted-foreground">
-                Match columns from your CSV to Synapse Finance fields.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {TRANSACTION_FIELDS.map(field => (
-                  <div key={field} className="space-y-1">
-                    <Label htmlFor={`map-${field}`} className="capitalize">{field}</Label>
-                    <Select 
-                      value={columnMapping[field]} 
-                      onValueChange={(value) => handleMappingChange(field, value)}
-                    >
-                      <SelectTrigger id={`map-${field}`}>
-                        <SelectValue placeholder={`Select CSV column for ${field}`} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {headers.map(header => (
-                          <SelectItem key={header} value={header}>{header}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
+      <ScrollFadeIn>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Upload File</CardTitle>
+            <CardDescription>Select your CSV or PDF file. For CSVs, map columns to transaction fields.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label htmlFor="file-upload" className="mb-2 block">Choose File</Label>
+              <div className="flex items-center gap-3">
+                <Input id="file-upload" type="file" accept=".csv,.pdf" onChange={handleFileChange} className="max-w-sm"/>
+                {file && <p className="text-sm text-muted-foreground flex items-center gap-1"> <FileText className="h-4 w-4" /> {file.name} ({fileType?.toUpperCase()})</p>}
               </div>
             </div>
-          )}
 
-          {fileType === 'csv' && parsedData.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-medium text-lg">CSV Preview (First 5 data rows)</h3>
-              <div className="overflow-x-auto rounded-md border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>{headers.map(h => <th key={h} className="p-2 text-left font-medium">{h}</th>)}</tr>
-                  </thead>
-                  <tbody>
-                    {parsedData.map((row, rowIndex) => (
-                      <tr key={rowIndex} className="border-b last:border-b-0">
-                        {headers.map(h => <td key={h} className="p-2">{row[h]}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {fileType === 'csv' && headers.length > 0 && (
+              <div className="space-y-4 p-4 border rounded-md bg-muted/20">
+                <h3 className="font-medium text-lg">Map CSV Columns</h3>
+                <p className="text-sm text-muted-foreground">
+                  Match columns from your CSV to Synapse Finance fields.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {TRANSACTION_FIELDS.map(field => (
+                    <div key={field} className="space-y-1">
+                      <Label htmlFor={`map-${field}`} className="capitalize">{field}</Label>
+                      <Select 
+                        value={columnMapping[field]} 
+                        onValueChange={(value) => handleMappingChange(field, value)}
+                      >
+                        <SelectTrigger id={`map-${field}`}>
+                          <SelectValue placeholder={`Select CSV column for ${field}`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {headers.map(header => (
+                            <SelectItem key={header} value={header}>{header}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-           {fileType === 'pdf' && (
-            <div className="p-4 border rounded-md bg-muted/20 text-center">
-              <FileText className="h-12 w-12 mx-auto text-primary mb-2" />
-              <h3 className="font-medium text-lg">PDF File Selected</h3>
-              <p className="text-sm text-muted-foreground">
-                PDF processing is currently a placeholder. For now, you can simulate the import.
-                Full PDF data extraction will be available in a future update.
-              </p>
+            {fileType === 'csv' && parsedData.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-medium text-lg">CSV Preview (First 5 data rows)</h3>
+                <div className="overflow-x-auto rounded-md border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50">
+                      <tr>{headers.map(h => <th key={h} className="p-2 text-left font-medium">{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {parsedData.map((row, rowIndex) => (
+                        <tr key={rowIndex} className="border-b last:border-b-0">
+                          {headers.map(h => <td key={h} className="p-2">{row[h]}</td>)}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+             {fileType === 'pdf' && (
+              <div className="p-4 border rounded-md bg-muted/20 text-center">
+                <FileText className="h-12 w-12 mx-auto text-primary mb-2" />
+                <h3 className="font-medium text-lg">PDF File Selected</h3>
+                <p className="text-sm text-muted-foreground">
+                  PDF processing is currently a placeholder. For now, you can simulate the import.
+                  Full PDF data extraction will be available in a future update.
+                </p>
+              </div>
+            )}
+            
+            <div className="pt-4">
+              <Button onClick={handleImport} disabled={isImportDisabled}>
+                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
+                Import Transactions
+              </Button>
             </div>
-          )}
-          
-          <div className="pt-4">
-            <Button onClick={handleImport} disabled={isImportDisabled}>
-              {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
-              Import Transactions
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </ScrollFadeIn>
     </div>
   );
 }

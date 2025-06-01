@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -9,6 +10,7 @@ import { AddTransactionDialog } from '@/components/transactions/add-transaction-
 import type { Transaction } from '@/types';
 import { mockTransactions } from '@/lib/mock-data';
 import Link from 'next/link';
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
@@ -52,11 +54,13 @@ export default function TransactionsPage() {
           </>
         }
       />
-      <TransactionList 
-        transactions={transactions} 
-        onEditTransaction={updateTransaction} 
-        onDeleteTransaction={deleteTransaction} 
-      />
+      <ScrollFadeIn>
+        <TransactionList 
+          transactions={transactions} 
+          onEditTransaction={updateTransaction} 
+          onDeleteTransaction={deleteTransaction} 
+        />
+      </ScrollFadeIn>
       <AddTransactionDialog
         isOpen={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}

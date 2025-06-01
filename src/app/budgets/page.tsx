@@ -13,6 +13,7 @@ import { CreateBudgetDialog } from '@/components/budgets/create-budget-dialog';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { useSettings } from '@/contexts/settings-context';
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
 
 export default function BudgetsPage() {
   const { currency } = useSettings();
@@ -69,58 +70,65 @@ export default function BudgetsPage() {
       />
 
       {budgets.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-center text-muted-foreground">
-            No budgets created yet. Click "Create Budget" to get started.
-          </CardContent>
-        </Card>
+        <ScrollFadeIn>
+          <Card>
+            <CardContent className="p-6 text-center text-muted-foreground">
+              No budgets created yet. Click "Create Budget" to get started.
+            </CardContent>
+          </Card>
+        </ScrollFadeIn>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {budgets.map((budget) => {
+          {budgets.map((budget, index) => {
             const progress = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
             const isOverspent = budget.spent > budget.amount;
             const period = formattedPeriods[budget.id] || "Loading period...";
+            // Simplified delayClass definition to troubleshoot parsing error
+            const delayClass = `delay-${index * 100}`;
+            
 
             return (
-              <Card key={budget.id} className="flex flex-col hover:scale-[1.01] transform transition-transform duration-300">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{budget.name}</CardTitle>
-                      <CardDescription>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></CardDescription>
+              <ScrollFadeIn key={budget.id} delay={delayClass as any}>
+                <Card className="flex flex-col hover:scale-[1.01] transform transition-transform duration-300 h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl">{budget.name}</CardTitle>
+                        <CardDescription>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></CardDescription>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }}>
+                          <Edit2 className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteBudget(budget.id)}>
+                          <Trash2 className="h-4 w-4" />
+                           <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }}>
-                        <Edit2 className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => deleteBudget(budget.id)}>
-                        <Trash2 className="h-4 w-4" />
-                         <span className="sr-only">Delete</span>
-                      </Button>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <div className="mb-2">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Spent: {budget.spent.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
+                        <span className={isOverspent ? "text-red-400" : ""}>
+                          Limit: {budget.amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
+                        </span>
+                      </div>
+                      <Progress value={progress} className="h-3" indicatorClassName={isOverspent ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'} />
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <div className="mb-2">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Spent: {budget.spent.toLocaleString('en-US', { style: 'currency', currency: currency })}</span>
-                      <span className={isOverspent ? "text-red-400" : ""}>
-                        Limit: {budget.amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
-                      </span>
-                    </div>
-                    <Progress value={progress} className="h-3" indicatorClassName={isOverspent ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'} />
-                  </div>
-                  <p className={`text-sm ${isOverspent ? 'text-red-400' : 'text-green-400'}`}>
-                    {isOverspent
-                      ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`
-                      : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <p className="text-xs text-muted-foreground">{period}</p>
-                </CardFooter>
-              </Card>
+                    <p className={`text-sm ${isOverspent ? 'text-red-400' : 'text-green-400'}`}>
+                      {isOverspent
+                        ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`
+                        : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <p className="text-xs text-muted-foreground">{period}</p>
+                  </CardFooter>
+                </Card>
+              </ScrollFadeIn>
             );
           })}
         </div>
