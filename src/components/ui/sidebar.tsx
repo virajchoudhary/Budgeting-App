@@ -7,7 +7,7 @@ import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
-import { useMounted } from "@/hooks/use-mounted" // Import useMounted
+import { useMounted } from "@/hooks/use-mounted" 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -174,22 +174,16 @@ const Sidebar = React.forwardRef<
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
     const mounted = useMounted();
 
-    if (!mounted) {
-      // Render desktop version or a skeleton on server and initial client render to avoid mismatch
-      // For simplicity, rendering desktop structure and relying on CSS for mobile.
-      // Or, if `isMobile` from `useIsMobile` hook is false during SSR (which it is),
-      // the desktop path is taken by default. This is what we want for the first pass.
-      // The key is that the decision logic for `isMobile` in `useIsMobile` (returning false for SSR) is consistent.
-    }
-
-
     if (mounted && isMobile) {
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
-            data-sidebar="sidebar"
+            data-sidebar="sidebar" // Keep for potential targeting
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar/85 backdrop-blur-xl p-0 text-sidebar-foreground [&>button]:hidden border-r border-sidebar-border"
+            className={cn(
+                "w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden", // Use bg-sidebar for solid mobile background
+                "border-r border-sidebar-border" // Ensure border is applied
+            )}
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -215,42 +209,36 @@ const Sidebar = React.forwardRef<
       >
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
-            "group-data-[side=right]:rotate-180",
+            "duration-200 relative h-svh bg-transparent transition-[width] ease-linear",
+            // Width adjustments based on variant and state
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+            state === "expanded" ? "w-[--sidebar-width]" : "w-[var(--sidebar-width-icon)]", // Ensure initial width based on state
+            "group-data-[collapsible=offcanvas]:w-0"
           )}
         />
         <div
           className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+            "duration-200 fixed inset-y-0 z-10 hidden h-svh transition-[left,right,width] ease-linear md:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
+            state === "expanded" && (variant === "sidebar" ? "w-[--sidebar-width]" : "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"), // Width when expanded
+            state === "collapsed" && (variant === "sidebar" ? "w-[--sidebar-width-icon]" : "w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"), // Width when collapsed
             className
           )}
           {...props}
         >
           <div
-            data-sidebar="sidebar"
+            data-sidebar="sidebar" 
             className={cn(
-              // Matching server output from error log for this className
-              "flex h-full w-full flex-col bg-sidebar text-sidebar-foreground", 
-              "group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-md",
-              // If variant is "sidebar", these apply to the outer container, not this inner div.
-              // This div is always the content wrapper.
-              // The parent div (the one with className="group peer...") gets data-variant="sidebar"
-              // So this inner div should not rely on group-data for its own direct border if variant is sidebar.
-              // The outer div handles border for variant="sidebar" via:
-              // "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
-              // If variant is "floating" or "inset", this div gets rounded and its own border.
-              (variant === "floating" || variant === "inset") && "rounded-lg border border-sidebar-border shadow-md",
-              variant === "sidebar" && "bg-sidebar" // Ensure bg-sidebar is explicitly set for variant="sidebar"
+              "flex h-full w-full flex-col text-sidebar-foreground",
+              variant === "sidebar" && "bg-sidebar group-data-[side=left]:border-r group-data-[side=left]:border-sidebar-border group-data-[side=right]:border-l group-data-[side=right]:border-sidebar-border",
+              (variant === "floating" || variant === "inset") && "bg-sidebar rounded-lg border border-sidebar-border shadow-md"
             )}
           >
             {children}
@@ -536,8 +524,8 @@ const sidebarMenuButtonVariants = cva(
 )
 
 const SidebarMenuButton = React.forwardRef<
-  HTMLButtonElement, // Changed from any to HTMLButtonElement for better type safety with asChild
-  React.ComponentProps<"button"> & { // Changed from any to button for base props
+  HTMLButtonElement, 
+  React.ComponentProps<"button"> & { 
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
@@ -569,7 +557,7 @@ const SidebarMenuButton = React.forwardRef<
             if (React.isValidElement(currentChild) && typeof currentChild.type !== 'string' && (currentChild.type as any).displayName?.includes('Icon')) {
               currentChild = React.cloneElement(currentChild as React.ReactElement<any>, { className: cn((currentChild.props as any).className, "group-data-[collapsible=icon]:mx-auto") });
             }
-            if (React.isValidElement(currentChild) && currentChild.type === 'span' && state === 'collapsed' && !isMobile) {
+            if (React.isValidElement(currentChild) && currentChild.type === 'span' && state === 'collapsed' && !isMobile && mounted) { // Check mounted here
               return null;
             }
             return currentChild;
@@ -587,11 +575,11 @@ const SidebarMenuButton = React.forwardRef<
         className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
         {...props}
       >
-        {displayedChildren}
+        {asChild ? children : displayedChildren}
       </Comp>
     )
 
-    if (!tooltip || !mounted) {
+    if (!tooltip || !mounted) { // also check mounted for tooltip
       return buttonElement;
     }
     
@@ -602,13 +590,22 @@ const SidebarMenuButton = React.forwardRef<
       tooltipProps = tooltip;
     }
 
+    // Conditional rendering logic for TooltipContent
+    // Show tooltip if:
+    // 1. Sidebar is collapsed AND not on mobile (desktop collapsed state)
+    // 2. On mobile, REGARDLESS of sidebar state (icons are always small on mobile sheet) - This needs refinement, original logic was: `(state === "expanded" && !isMobile)` for hiding
+    // Corrected logic for hiding:
+    // Hide if (desktop AND sidebar expanded)
+    const hideTooltip = (state === "expanded" && !isMobile && mounted);
+
+
     return (
       <Tooltip>
         <TooltipTrigger asChild>{buttonElement}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
-          hidden={(state !== "collapsed" && !asChild && !isMobile) || (isMobile && state === "expanded") || (state === "expanded" && !isMobile) }
+          hidden={hideTooltip}
           {...tooltipProps}
         />
       </Tooltip>
