@@ -10,7 +10,7 @@ import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { BudgetOverview } from '@/components/dashboard/budget-overview';
 import { SpendingCategoryChart } from '@/components/dashboard/spending-category-chart';
 import type { Transaction, Budget } from '@/types';
-import { mockBudgets } from '@/lib/mock-data'; // Budgets still from mock
+import { mockBudgets, mockTransactions } from '@/lib/mock-data'; // Budgets and transactions from mock
 import Link from 'next/link';
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
 import { useAuth } from '@/contexts/auth-context';
@@ -24,7 +24,7 @@ interface CategorySpending {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
@@ -34,22 +34,48 @@ export default function DashboardPage() {
   const [categorySpending, setCategorySpending] = useState<CategorySpending[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const calculateMockDataSummary = () => {
+    let income = 0;
+    let expenses = 0;
+    const spendingByCat: Record<string, number> = {};
+
+    mockTransactions.forEach(t => {
+      if (t.type === 'income') {
+        income += t.amount;
+      } else {
+        expenses += Math.abs(t.amount);
+        if (t.category !== 'Income' && t.category !== 'Uncategorized') {
+          spendingByCat[t.category] = (spendingByCat[t.category] || 0) + Math.abs(t.amount);
+        }
+      }
+    });
+    setTotalIncome(income);
+    setTotalExpenses(expenses);
+    setRecentTransactions(mockTransactions.slice(0, 5));
+
+    const formattedSpendingData = Object.entries(spendingByCat)
+      .map(([name, value]) => ({ name, value, fill: '' }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
+    setCategorySpending(formattedSpendingData);
+  };
+
+
   const fetchDashboardData = useCallback(async () => {
+    setIsLoading(true);
     if (!user) {
-      setTransactions([]);
-      setRecentTransactions([]);
-      setTotalIncome(0);
-      setTotalExpenses(0);
-      setCategorySpending([]);
+      // Setup for unauthenticated view with mock data
+      setTransactions(mockTransactions);
+      calculateMockDataSummary();
+      setBudgets(mockBudgets.slice(0, 3));
       setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
     try {
-      const userTransactions = await getTransactions(); // Fetches all, then we process
+      const userTransactions = await getTransactions();
       setTransactions(userTransactions);
-      setRecentTransactions(userTransactions.slice(0, 5)); // Take first 5 for recent
+      setRecentTransactions(userTransactions.slice(0, 5));
 
       let income = 0;
       let expenses = 0;
@@ -59,7 +85,7 @@ export default function DashboardPage() {
         if (t.type === 'income') {
           income += t.amount;
         } else {
-          expenses += Math.abs(t.amount); // amount is negative for expense
+          expenses += Math.abs(t.amount);
           if (t.category !== 'Income' && t.category !== 'Uncategorized') {
             spendingByCat[t.category] = (spendingByCat[t.category] || 0) + Math.abs(t.amount);
           }
@@ -69,18 +95,21 @@ export default function DashboardPage() {
       setTotalExpenses(expenses);
 
       const formattedSpendingData = Object.entries(spendingByCat)
-        .map(([name, value]) => ({
-          name,
-          value,
-          fill: '', // Will be set by chart component
-        }))
+        .map(([name, value]) => ({ name, value, fill: '' }))
         .sort((a, b) => b.value - a.value)
         .slice(0, 6);
       setCategorySpending(formattedSpendingData);
+      
+      // Still using mock budgets for authenticated users as per previous setup
+      setBudgets(mockBudgets.slice(0, 3));
 
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not load dashboard data." });
+      // Fallback to mock data on error for authenticated user as well
+      setTransactions(mockTransactions);
+      calculateMockDataSummary();
+      setBudgets(mockBudgets.slice(0, 3));
     } finally {
       setIsLoading(false);
     }
@@ -88,23 +117,14 @@ export default function DashboardPage() {
 
 
   useEffect(() => {
-    setBudgets(mockBudgets.slice(0, 3)); // Budgets are still from mock data
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    if (!authLoading) { // Only fetch when auth state is resolved
+      fetchDashboardData();
+    }
+  }, [authLoading, fetchDashboardData]);
 
 
-  if (!user && !isLoading) {
-    return (
-      <div className="space-y-10 text-center">
-        <PageHeader title="Welcome to Kamski" description="Your financial snapshot at a glance. Please log in to view your dashboard." />
-        <Link href="/login" passHref>
-          <Button size="lg">Log In to Get Started</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  if (isLoading) {
+  // Combined loading state check
+  if (isLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />

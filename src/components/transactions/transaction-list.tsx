@@ -20,25 +20,26 @@ import { useSettings } from '@/contexts/settings-context';
 
 interface TransactionListProps {
   transactions: Transaction[];
-  onEditTransaction: (transaction: Transaction) => Promise<void>; // Now async for server action
-  onDeleteTransaction: (transactionId: string) => Promise<void>; // Now async for server action
+  onEditTransaction: (transaction: Transaction) => Promise<void>; 
+  onDeleteTransaction: (transactionId: string) => Promise<void>; 
+  canEditDelete: boolean; // New prop
 }
 
-export function TransactionList({ transactions, onEditTransaction, onDeleteTransaction }: TransactionListProps) {
+export function TransactionList({ transactions, onEditTransaction, onDeleteTransaction, canEditDelete }: TransactionListProps) {
   const { currency } = useSettings();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = (transaction: Transaction) => {
+    if (!canEditDelete) return; // Prevent editing if not allowed
     setEditingTransaction(transaction);
   };
 
   const handleSaveEdit = async (transactionData: Omit<Transaction, 'id' | 'userId' | 'date'> & { date: string | Date }) => {
-    if (!editingTransaction) return;
+    if (!editingTransaction || !canEditDelete) return;
     setIsSubmitting(true);
-    // Construct the full transaction object for the onEditTransaction prop
     const updatedTransaction: Transaction = {
-      ...editingTransaction, // Preserve id and userId
+      ...editingTransaction, 
       ...transactionData,
       date: transactionData.date instanceof Date ? transactionData.date.toISOString() : new Date(transactionData.date).toISOString(),
     };
@@ -48,6 +49,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
   };
 
   const handleDelete = async (transactionId: string) => {
+    if (!canEditDelete) return; // Prevent deletion if not allowed
     setIsSubmitting(true);
     await onDeleteTransaction(transactionId);
     setIsSubmitting(false);
@@ -74,7 +76,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                {canEditDelete && <TableHead className="text-center">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -87,38 +89,41 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                     {transaction.type === 'expense' ? '-' : ''}
                     {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" disabled={isSubmitting}>
-                          <MoreVertical className="h-4 w-4" />
-                           <span className="sr-only">Actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(transaction)} disabled={isSubmitting}>
-                          <Edit2 className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400" disabled={isSubmitting}>
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  {canEditDelete && (
+                    <TableCell className="text-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" disabled={isSubmitting}>
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEdit(transaction)} disabled={isSubmitting}>
+                            <Edit2 className="mr-2 h-4 w-4" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400" disabled={isSubmitting}>
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
-      {editingTransaction && (
+      {editingTransaction && canEditDelete && ( // Ensure dialog only renders if editing is possible
         <AddTransactionDialog
           isOpen={!!editingTransaction}
           onOpenChange={() => setEditingTransaction(null)}
-          onTransactionAdded={handleSaveEdit} // This now expects the partial data for an update
+          onTransactionAdded={handleSaveEdit}
           existingTransaction={editingTransaction}
         />
       )}
     </>
   );
 }
+

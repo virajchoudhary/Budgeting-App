@@ -8,7 +8,7 @@ import { PlusCircle, FileInputIcon } from 'lucide-react';
 import { TransactionList } from '@/components/transactions/transaction-list';
 import { AddTransactionDialog } from '@/components/transactions/add-transaction-dialog';
 import type { Transaction } from '@/types';
-// import { mockTransactions } from '@/lib/mock-data'; // No longer using mock data here
+import { mockTransactions } from '@/lib/mock-data'; 
 import Link from 'next/link';
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
 import { useAuth } from '@/contexts/auth-context';
@@ -20,15 +20,18 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const fetchUserTransactions = useCallback(async () => {
+    // No user, use mock data
     if (!user) {
-      setTransactions([]);
+      setTransactions(mockTransactions);
       setIsLoading(false);
       return;
     }
+
+    // User is logged in, fetch their transactions
     setIsLoading(true);
     try {
       const userTransactions = await getTransactions();
@@ -36,17 +39,21 @@ export default function TransactionsPage() {
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not fetch transactions." });
-      setTransactions([]); // Clear transactions on error
+      setTransactions(mockTransactions); // Fallback to mock data on error
     } finally {
       setIsLoading(false);
     }
   }, [user, toast]);
 
   useEffect(() => {
-    fetchUserTransactions();
-  }, [fetchUserTransactions]);
+    if (!authLoading) { // Only run after auth state is determined
+        fetchUserTransactions();
+    }
+  }, [authLoading, fetchUserTransactions]);
 
   useEffect(() => {
+    // If hash is #add and user is logged in, open dialog
+    // If user is not logged in, do not open (button will be disabled)
     if (window.location.hash === '#add' && user) {
       setIsAddDialogOpen(true);
     }
@@ -58,10 +65,9 @@ export default function TransactionsPage() {
       return;
     }
     try {
-      // The server action `addTransactionAction` will handle associating the userId
       await addTransactionAction(newTransactionData);
       toast({ title: "Transaction Added", description: "Your transaction has been saved." });
-      fetchUserTransactions(); // Re-fetch to update list
+      fetchUserTransactions(); 
     } catch (error: any) {
       console.error("Failed to add transaction:", error);
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not add transaction." });
@@ -74,7 +80,6 @@ export default function TransactionsPage() {
       return;
     }
     try {
-      // Prepare data for server action, excluding id and userId as they are handled by action/doc ref
       const { id, userId: uId, ...dataToUpdate } = updatedTransaction;
       await updateTransactionAction(id, dataToUpdate);
       toast({ title: "Transaction Updated", description: "Your transaction has been updated." });
@@ -99,19 +104,9 @@ export default function TransactionsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not delete transaction." });
     }
   };
-
-  if (!user && !isLoading) {
-    return (
-      <div className="space-y-8 text-center">
-        <PageHeader title="Transactions" description="Please log in to manage your transactions." />
-        <Link href="/login">
-          <Button>Log In</Button>
-        </Link>
-      </div>
-    );
-  }
   
-  if (isLoading) {
+  // Combined loading state
+  if (isLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -141,14 +136,17 @@ export default function TransactionsPage() {
         <TransactionList 
           transactions={transactions} 
           onEditTransaction={handleUpdateTransaction} 
-          onDeleteTransaction={handleDeleteTransaction} 
+          onDeleteTransaction={handleDeleteTransaction}
+          canEditDelete={!!user} // Pass flag to disable edit/delete if not logged in
         />
       </ScrollFadeIn>
-      <AddTransactionDialog
-        isOpen={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onTransactionAdded={handleAddTransaction}
-      />
+      {user && ( // Only render dialog if user is logged in, prevents trying to open it via URL hash when not logged in
+         <AddTransactionDialog
+            isOpen={isAddDialogOpen}
+            onOpenChange={setIsAddDialogOpen}
+            onTransactionAdded={handleAddTransaction}
+          />
+      )}
     </div>
   );
 }
