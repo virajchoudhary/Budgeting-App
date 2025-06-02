@@ -35,8 +35,10 @@ export function BudgetOverview({ budgets }: BudgetOverviewProps) {
               <Progress value={Math.min(progress, 100)} className="h-3" 
                 indicatorClassName={progress > 100 ? 'bg-red-500' : progress > 80 ? 'bg-yellow-500' : 'bg-primary'}
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {remaining >=0 ? `${remaining.toLocaleString('en-US', { style: 'currency', currency: currency })} remaining` : `${Math.abs(remaining).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`}
+              <p className={`text-xs mt-1 ${remaining >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {remaining >= 0
+                  ? `${remaining.toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`
+                  : `${Math.abs(remaining).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`}
               </p>
             </div>
           );
