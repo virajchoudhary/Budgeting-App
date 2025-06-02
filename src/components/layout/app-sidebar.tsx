@@ -84,7 +84,7 @@ export function AppSidebar() {
       <Separator className="mx-2 mt-auto mb-0 bg-sidebar-border" />
       <SidebarFooter className="p-2">
         <SidebarMenu>
-          {user ? (
+          {!loading && (
             <>
               <SidebarMenuItem>
                  <Link href="/settings" passHref legacyBehavior>
@@ -100,22 +100,22 @@ export function AppSidebar() {
                     </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{children: user.email || "User Profile", side: "right", align: "center"}} className="cursor-default hover:bg-transparent">
-                  <UserCircle />
-                  <span>{user.email}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} tooltip={{children: "Log Out", side: "right", align: "center"}}>
-                  <LogOut />
-                  <span>Log Out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </>
-          ) : (
-            <>
-             {!loading && (
+              {user ? (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip={{children: user.email || "User Profile", side: "right", align: "center"}} className="cursor-default hover:bg-transparent">
+                      <UserCircle />
+                      <span>{user.email}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton onClick={handleLogout} tooltip={{children: "Log Out", side: "right", align: "center"}}>
+                      <LogOut />
+                      <span>Log Out</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              ) : (
                 <>
                   <SidebarMenuItem>
                     <Link href="/login" passHref legacyBehavior>
