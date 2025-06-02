@@ -18,11 +18,11 @@ interface ScrollFadeInProps {
 export function ScrollFadeIn({
   children,
   className,
-  delay = '',
-  duration = 'duration-700',
+  delay = '', // Default to no delay
+  duration = 'duration-500', // Changed default duration
   threshold = 0.1,
   once = true,
-  translateY = 'translate-y-5',
+  translateY = 'translate-y-4', // Changed default translateY
 }: ScrollFadeInProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const entry = useIntersectionObserver(ref, { threshold, freezeOnceVisible: once });

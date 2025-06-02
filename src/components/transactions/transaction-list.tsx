@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AddTransactionDialog } from './add-transaction-dialog';
 import { useSettings } from '@/contexts/settings-context';
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import ScrollFadeIn
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -24,6 +25,9 @@ interface TransactionListProps {
   onDeleteTransaction: (transactionId: string) => Promise<void>; 
   canEditDelete: boolean; // New prop
 }
+
+const staggerDelays: (`delay-${number}`)[] = ['delay-0', 'delay-75', 'delay-150', 'delay-200', 'delay-300'];
+
 
 export function TransactionList({ transactions, onEditTransaction, onDeleteTransaction, canEditDelete }: TransactionListProps) {
   const { currency } = useSettings();
@@ -68,11 +72,13 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
   
   if (transactions.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
-          No transactions recorded yet. Add one or import a CSV file to get started.
-        </CardContent>
-      </Card>
+      <ScrollFadeIn>
+        <Card>
+          <CardContent className="p-6 text-center text-muted-foreground">
+            No transactions recorded yet. Add one or import a CSV file to get started.
+          </CardContent>
+        </Card>
+      </ScrollFadeIn>
     );
   }
 
@@ -91,41 +97,46 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id} className="hover:bg-muted/20 transition-colors duration-150">
-                  <TableCell>{format(new Date(transaction.date), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell className="font-medium">{transaction.description}</TableCell>
-                  <TableCell><Badge variant="outline">{transaction.category}</Badge></TableCell>
-                  <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
-                    {transaction.type === 'expense' ? '-' : ''}
-                    {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}
-                  </TableCell>
-                  {canEditDelete && (
-                    <TableCell className="text-center">
-                       {isSubmitting && actionedTransactionId === transaction.id ? (
-                        <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-                      ) : (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8"> {/* Removed hover:bg-transparent */}
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(transaction)} disabled={isSubmitting}>
-                            <Edit2 className="mr-2 h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400" disabled={isSubmitting}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                       )}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+              {transactions.map((transaction, index) => {
+                const delayClass = staggerDelays[Math.min(index, staggerDelays.length - 1)];
+                return (
+                  <ScrollFadeIn key={transaction.id} delay={delayClass as `delay-${number}` | undefined}>
+                    <TableRow className="hover:bg-muted/20 transition-colors duration-150">
+                      <TableCell>{format(new Date(transaction.date), 'MMM dd, yyyy')}</TableCell>
+                      <TableCell className="font-medium">{transaction.description}</TableCell>
+                      <TableCell><Badge variant="outline">{transaction.category}</Badge></TableCell>
+                      <TableCell className={`text-right font-medium ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
+                        {transaction.type === 'expense' ? '-' : ''}
+                        {Math.abs(transaction.amount).toLocaleString('en-US', { style: 'currency', currency: currency })}
+                      </TableCell>
+                      {canEditDelete && (
+                        <TableCell className="text-center">
+                          {isSubmitting && actionedTransactionId === transaction.id ? (
+                            <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+                          ) : (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Actions</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(transaction)} disabled={isSubmitting}>
+                                <Edit2 className="mr-2 h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400" disabled={isSubmitting}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  </ScrollFadeIn>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
