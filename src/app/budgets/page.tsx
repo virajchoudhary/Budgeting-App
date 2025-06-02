@@ -28,6 +28,7 @@ export default function BudgetsPage() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const [formattedPeriods, setFormattedPeriods] = useState<Record<string, string>>({});
 
   const fetchUserBudgets = useCallback(async () => {
@@ -93,7 +94,7 @@ export default function BudgetsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not create budget." });
     } finally {
       setIsMutating(false);
-      setIsCreateDialogOpen(false); // Close dialog on success or failure if it was open for add
+      setIsCreateDialogOpen(false); 
     }
   };
 
@@ -112,7 +113,7 @@ export default function BudgetsPage() {
     } finally {
       setEditingBudget(null);
       setIsMutating(false);
-      setIsCreateDialogOpen(false); // Close dialog on success or failure
+      setIsCreateDialogOpen(false); 
     }
   };
 
@@ -122,6 +123,7 @@ export default function BudgetsPage() {
       return;
     }
     setIsMutating(true);
+    setDeletingItemId(budgetId);
     try {
       await deleteBudgetAction(budgetId);
       toast({ title: "Budget Deleted", description: "Your budget has been removed." });
@@ -130,6 +132,7 @@ export default function BudgetsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not delete budget." });
     } finally {
       setIsMutating(false);
+      setDeletingItemId(null);
     }
   };
 
@@ -150,7 +153,7 @@ export default function BudgetsPage() {
         description="Create and manage your spending budgets."
         actions={
           <Button onClick={() => { setEditingBudget(null); setIsCreateDialogOpen(true); }} disabled={!user || isMutating}>
-            {isMutating && !editingBudget ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+            {isMutating && !editingBudget && !deletingItemId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
              Create Budget
           </Button>
         }
@@ -173,21 +176,24 @@ export default function BudgetsPage() {
             
             return (
               <ScrollFadeIn key={budget.id}>
-                <Card className="flex flex-col h-full"> {/* Removed hover:scale transform */}
+                <Card className="flex flex-col h-full">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-xl">{budget.name}</CardTitle>
-                        <CardDescription>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></CardDescription>
+                        <CardDescription className="space-y-1">
+                            <span>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></span>
+                             <p className="text-xs text-muted-foreground pt-1">Note: Spent amount reflects direct input. Dynamic calculation from transactions is upcoming.</p>
+                        </CardDescription>
                       </div>
                       {user && (
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }} disabled={isMutating && editingBudget?.id === budget.id}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }} disabled={!user || isMutating}>
                             {isMutating && editingBudget?.id === budget.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <Edit2 className="h-4 w-4" /> }
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => handleDeleteBudget(budget.id)} disabled={isMutating}>
-                            {isMutating && editingBudget?.id !== budget.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleDeleteBudget(budget.id)} disabled={!user || isMutating}>
+                            {deletingItemId === budget.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
@@ -209,7 +215,6 @@ export default function BudgetsPage() {
                         ? `${(budget.spent - budget.amount).toLocaleString('en-US', { style: 'currency', currency: currency })} overspent`
                         : `${(budget.amount - budget.spent).toLocaleString('en-US', { style: 'currency', currency: currency })} remaining`}
                     </p>
-                     <p className="text-xs text-muted-foreground mt-1">Note: Spent amount reflects direct input. Dynamic calculation from transactions is upcoming.</p>
                   </CardContent>
                   <CardFooter>
                     <p className="text-xs text-muted-foreground">{period}</p>
@@ -227,9 +232,11 @@ export default function BudgetsPage() {
           onOpenChange={setIsCreateDialogOpen}
           onBudgetSaved={editingBudget ? handleUpdateBudget : handleAddBudget}
           existingBudget={editingBudget ?? undefined}
-          isSubmitting={isMutating && (editingBudget ? editingBudget.id === editingBudget?.id : !editingBudget) } // Pass isMutating state correctly
+          isSubmitting={isMutating && (editingBudget ? editingBudget.id === editingBudget?.id : (!editingBudget && !deletingItemId)) }
         />
       )}
     </div>
   );
 }
+
+    

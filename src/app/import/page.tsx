@@ -7,10 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, FileText, Loader2 } from 'lucide-react'; // Replaced TableIcon with FileText
+import { UploadCloud, FileText, Loader2 } from 'lucide-react'; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast"; // For notifications
-import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import the animation wrapper
+import { useToast } from "@/hooks/use-toast"; 
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; 
+import { useAuth } from '@/contexts/auth-context';
 
 type ParsedRow = Record<string, string>;
 const TRANSACTION_FIELDS = ["date", "description", "amount", "category"] as const;
@@ -18,6 +19,7 @@ type TransactionField = typeof TRANSACTION_FIELDS[number];
 
 export default function ImportPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [fileType, setFileType] = useState<'csv' | 'pdf' | null>(null);
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
@@ -40,10 +42,8 @@ export default function ImportPage() {
         parseCsv(selectedFile);
       } else if (name.endsWith('.pdf')) {
         setFileType('pdf');
-        // PDF parsing is complex and would typically be handled here or by a backend.
-        // For now, we'll just acknowledge the file type.
-        setParsedData([]); // Clear previous CSV data if any
-        setHeaders([]); // Clear headers
+        setParsedData([]); 
+        setHeaders([]); 
         toast({ title: "PDF Selected", description: "PDF parsing is a placeholder. Map columns if applicable, or proceed with simulated import." });
       } else {
         setFileType(null);
@@ -56,19 +56,19 @@ export default function ImportPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const lines = text.split('\n').filter(line => line.trim() !== ''); // Filter empty lines
+      const lines = text.split('\n').filter(line => line.trim() !== ''); 
       if (lines.length === 0) {
         toast({variant: "destructive", title: "Empty CSV", description: "The CSV file appears to be empty."});
         setHeaders([]);
         setParsedData([]);
         return;
       }
-      const fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '')); // Trim and remove quotes
+      const fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '')); 
       setHeaders(fileHeaders);
-      const data = lines.slice(1, 6).map(line => { // Preview first 5 data rows
+      const data = lines.slice(1, 6).map(line => { 
         const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
         return fileHeaders.reduce((obj, header, index) => {
-          obj[header] = values[index] || ''; // Ensure value exists
+          obj[header] = values[index] || ''; 
           return obj;
         }, {} as ParsedRow);
       });
@@ -83,6 +83,10 @@ export default function ImportPage() {
   };
 
   const handleImport = async () => {
+    if (!user) {
+      toast({ variant: "destructive", title: "Not Authenticated", description: "Please log in to import transactions." });
+      return;
+    }
     if (!file) {
       toast({ variant: "destructive", title: "No File", description: "Please select a file to import." });
       return;
@@ -94,32 +98,27 @@ export default function ImportPage() {
     
     setIsProcessing(true);
     
-    // Simulate import process
     await new Promise(resolve => setTimeout(resolve, 1500)); 
     
     if (fileType === 'csv') {
       console.log("Importing CSV with mapping:", columnMapping);
-      // In a real app, you'd parse the full CSV, transform data based on mapping, and save transactions.
       toast({ title: "CSV Import Successful (Simulated)", description: "Your transactions have been processed." });
     } else if (fileType === 'pdf') {
       console.log("Importing PDF:", file.name);
-      // In a real app, PDF processing logic would go here.
       toast({ title: "PDF Import Initiated (Simulated)", description: "PDF processing is a placeholder." });
     }
     
     setIsProcessing(false);
-    // Reset state
     setFile(null);
     setFileType(null);
     setParsedData([]);
     setHeaders([]);
     setColumnMapping({ date: '', description: '', amount: '', category: '' });
-    // Clear file input
     const fileInput = document.getElementById('file-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   };
 
-  const isImportDisabled = !file || isProcessing || (fileType === 'csv' && Object.values(columnMapping).some(val => !val));
+  const isImportDisabled = !user || !file || isProcessing || (fileType === 'csv' && Object.values(columnMapping).some(val => !val));
 
   return (
     <div className="space-y-8">
@@ -155,6 +154,7 @@ export default function ImportPage() {
                       <Select 
                         value={columnMapping[field]} 
                         onValueChange={(value) => handleMappingChange(field, value)}
+                        disabled={!user}
                       >
                         <SelectTrigger id={`map-${field}`}>
                           <SelectValue placeholder={`Select CSV column for ${field}`} />
@@ -214,3 +214,5 @@ export default function ImportPage() {
     </div>
   );
 }
+
+    
