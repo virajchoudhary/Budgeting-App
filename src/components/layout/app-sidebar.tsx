@@ -19,13 +19,15 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
+// For "test without login" mode, we want these to be visible to navigate to mock data pages.
+// The pages themselves will handle disabling/hiding functionality for non-logged-in users.
 const navItems = [
-  { href: '/', label: 'Overview', icon: Home, authRequired: true },
-  { href: '/transactions', label: 'Transactions', icon: ListChecks, authRequired: true },
-  { href: '/import', label: 'Import', icon: FileInput, authRequired: true },
-  { href: '/budgets', label: 'Budgets', icon: PieChart, authRequired: true },
-  { href: '/savings', label: 'Savings', icon: Target, authRequired: true },
-  { href: '/insights', label: 'Insights', icon: Brain, authRequired: true },
+  { href: '/', label: 'Overview', icon: Home, authRequired: false },
+  { href: '/transactions', label: 'Transactions', icon: ListChecks, authRequired: false },
+  { href: '/import', label: 'Import', icon: FileInput, authRequired: false },
+  { href: '/budgets', label: 'Budgets', icon: PieChart, authRequired: false },
+  { href: '/savings', label: 'Savings', icon: Target, authRequired: false },
+  { href: '/insights', label: 'Insights', icon: Brain, authRequired: false },
 ];
 
 export function AppSidebar() {
@@ -61,7 +63,7 @@ export function AppSidebar() {
       <Separator className="mx-2 my-0 bg-sidebar-border" />
       <SidebarContent className="p-2">
         <SidebarMenu>
-          {(!loading && user) && visibleNavItems.map((item) => (
+          {!loading && visibleNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} passHref legacyBehavior>
                 <SidebarMenuButton
