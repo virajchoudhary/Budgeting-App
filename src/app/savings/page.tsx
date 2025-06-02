@@ -88,9 +88,9 @@ export default function SavingsPage() {
       await updateGoalAction(editingGoal.id, updatedGoalData);
       toast({ title: "Savings Goal Updated", description: "Your goal has been updated." });
       fetchUserSavingsGoals();
-    } catch (error: any) {
+    } catch (error: any) { // Added opening brace for catch block
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not update goal." });
-    } finally {
+    } finally { // Added closing brace for catch block
       setEditingGoal(null);
       setIsMutating(false);
       setIsAddDialogOpen(false); // Close dialog
@@ -185,7 +185,7 @@ export default function SavingsPage() {
             
             return (
               <ScrollFadeIn key={goal.id}>
-                <Card className="flex flex-col h-full"> {/* Removed hover scale/shadow */}
+                <Card className="flex flex-col h-full">
                   <CardHeader>
                      <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
@@ -197,11 +197,11 @@ export default function SavingsPage() {
                       </div>
                        {user && (
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}} disabled={(isMutating && editingGoal?.id === goal.id) || isAITipsLoading}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}} disabled={(isMutating && editingGoal?.id === goal.id) || isAITipsLoading}>
                              {(isMutating && editingGoal?.id === goal.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Edit2 className="h-4 w-4" />}
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => handleDeleteGoal(goal.id)} disabled={isMutating || isAITipsLoading}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleDeleteGoal(goal.id)} disabled={isMutating || isAITipsLoading}>
                             {isMutating && editingGoal?.id !== goal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
@@ -233,7 +233,7 @@ export default function SavingsPage() {
                         size="sm" 
                         className="w-full"
                         onClick={() => handleFetchAiTips(goal)} 
-                        disabled={!user || isAITipsLoading || isMutating}
+                        disabled={isAITipsLoading || isMutating}
                       >
                         {isAITipsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" />}
                         {isAITipsLoading ? 'Getting Tips...' : 'Get AI Tips'}
