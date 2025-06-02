@@ -13,16 +13,14 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard, UserCircle, LogIn } from 'lucide-react';
+import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard, UserCircle, LogIn } from 'lucide-react'; // LogIn can still be used as an icon
 import { useAuth } from '@/contexts/auth-context';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
-// For "test without login" mode, we want these to be visible to navigate to mock data pages.
-// The pages themselves will handle disabling/hiding functionality for non-logged-in users.
 const navItems = [
-  { href: '/', label: 'Overview', icon: Home, authRequired: false },
+  { href: '/', label: 'Home', icon: Home, authRequired: false },
   { href: '/transactions', label: 'Transactions', icon: ListChecks, authRequired: false },
   { href: '/import', label: 'Import', icon: FileInput, authRequired: false },
   { href: '/budgets', label: 'Budgets', icon: PieChart, authRequired: false },
@@ -40,7 +38,7 @@ export function AppSidebar() {
     try {
       await signOut(auth);
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
-      router.push('/login');
+      router.push('/auth'); // Redirect to the new auth page after logout
     } catch (error) {
       console.error("Logout error:", error);
       toast({ variant: "destructive", title: "Logout Failed", description: "Could not log out. Please try again." });
@@ -118,16 +116,9 @@ export function AppSidebar() {
               ) : (
                 <>
                   <SidebarMenuItem>
-                    <Link href="/login" passHref legacyBehavior>
-                      <SidebarMenuButton asChild isActive={pathname === "/login"} tooltip={{children: "Log In", side: "right", align: "center"}}>
-                        <a><LogIn /><span>Log In</span></a>
-                      </SidebarMenuButton>
-                    </Link>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <Link href="/signup" passHref legacyBehavior>
-                      <SidebarMenuButton asChild isActive={pathname === "/signup"} tooltip={{children: "Sign Up", side: "right", align: "center"}}>
-                        <a><UserCircle /><span>Sign Up</span></a>
+                    <Link href="/auth" passHref legacyBehavior>
+                      <SidebarMenuButton asChild isActive={pathname === "/auth"} tooltip={{children: "Login / Sign Up", side: "right", align: "center"}}>
+                        <a><LogIn /><span>Login / Sign Up</span></a>
                       </SidebarMenuButton>
                     </Link>
                   </SidebarMenuItem>
