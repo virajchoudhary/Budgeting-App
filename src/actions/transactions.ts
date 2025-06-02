@@ -12,7 +12,7 @@ const getCurrentUserId = (): string | null => {
   return user ? user.uid : null;
 };
 
-export async function addTransaction(transactionData: Omit<Transaction, 'id' | 'userId' | 'date'> & { date: string | Date }) {
+export async function addTransaction(transactionData: Omit<Transaction, 'id' | 'userId' | 'date' | 'createdAt'> & { date: string | Date }) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
@@ -33,7 +33,12 @@ export async function addTransaction(transactionData: Omit<Transaction, 'id' | '
     const docRef = await addDoc(collection(db, 'transactions'), newTransaction);
     revalidatePath('/transactions');
     revalidatePath('/'); // For dashboard
-    return { id: docRef.id, ...newTransaction, date: dateTimestamp.toDate().toISOString() } as Transaction;
+    return { 
+      id: docRef.id, 
+      ...newTransaction, 
+      date: dateTimestamp.toDate().toISOString(),
+      createdAt: new Date().toISOString(), // Approximate client representation
+    } as Transaction;
   } catch (error) {
     console.error('Error adding transaction:', error);
     throw new Error('Failed to add transaction.');
@@ -48,7 +53,7 @@ export async function getTransactions(fetchLimit?: number): Promise<Transaction[
 
   try {
     const transactionsCollection = collection(db, 'transactions');
-    const queryConstraints = [
+    const queryConstraints: any[] = [ // Use any[] to allow pushing limitConstraint conditionally
         where('userId', '==', userId),
         orderBy('date', 'desc')
     ];
@@ -65,7 +70,8 @@ export async function getTransactions(fetchLimit?: number): Promise<Transaction[
       return {
         id: docSnap.id,
         ...data,
-        date: (data.date as Timestamp).toDate().toISOString(), // Convert Timestamp to ISO string
+        date: (data.date as Timestamp).toDate().toISOString(),
+        createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate().toISOString() : undefined,
       } as Transaction;
     });
     return transactions;
@@ -90,6 +96,7 @@ export async function updateTransaction(transactionId: string, updatedData: Part
   } else if (updatedData.date instanceof Date) {
     dataToUpdate.date = Timestamp.fromDate(updatedData.date);
   }
+  // Note: createdAt is not updated. If updatedAt is desired, add here with serverTimestamp().
 
 
   try {
@@ -119,3 +126,4 @@ export async function deleteTransaction(transactionId: string) {
     throw new Error('Failed to delete transaction.');
   }
 }
+

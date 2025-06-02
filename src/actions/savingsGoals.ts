@@ -12,30 +12,36 @@ const getCurrentUserId = (): string | null => {
   return user ? user.uid : null;
 };
 
-export async function addSavingsGoal(goalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips'>) {
+export async function addSavingsGoal(goalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips' | 'createdAt' | 'updatedAt'>) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
   }
 
-  const newGoal = {
+  const newGoal: any = {
     ...goalData,
     userId,
-    aiTips: goalData.aiTips || '', // Initialize aiTips if not provided
+    aiTips: goalData.aiTips || '', 
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
-    deadline: goalData.deadline ? Timestamp.fromDate(new Date(goalData.deadline)) : null,
   };
+  if (goalData.deadline) {
+    newGoal.deadline = Timestamp.fromDate(new Date(goalData.deadline));
+  } else {
+    newGoal.deadline = null; // Ensure deadline is explicitly null if not provided
+  }
+
 
   try {
     const docRef = await addDoc(collection(db, 'savingsGoals'), newGoal);
     revalidatePath('/savings');
     return { 
       id: docRef.id, 
-      ...newGoal, 
-      deadline: goalData.deadline,
-      createdAt: new Date().toISOString(), // Approximate client-side representation
-      updatedAt: new Date().toISOString(), // Approximate client-side representation
+      ...goalData, // Return original data shape for dates
+      userId,
+      aiTips: newGoal.aiTips,
+      createdAt: new Date().toISOString(), 
+      updatedAt: new Date().toISOString(), 
     } as SavingsGoal;
   } catch (error) {
     console.error('Error adding savings goal:', error);
@@ -70,7 +76,7 @@ export async function getSavingsGoals(): Promise<SavingsGoal[]> {
   }
 }
 
-export async function updateSavingsGoal(goalId: string, updatedData: Partial<Omit<SavingsGoal, 'id' | 'userId'>>) {
+export async function updateSavingsGoal(goalId: string, updatedData: Partial<Omit<SavingsGoal, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
@@ -79,12 +85,14 @@ export async function updateSavingsGoal(goalId: string, updatedData: Partial<Omi
   const goalDocRef = doc(db, 'savingsGoals', goalId);
   const dataToUpdate: any = { ...updatedData, updatedAt: serverTimestamp() };
   
-  if (updatedData.deadline && typeof updatedData.deadline === 'string') {
-    dataToUpdate.deadline = Timestamp.fromDate(new Date(updatedData.deadline));
-  } else if (updatedData.deadline === null) { // Explicitly allow clearing the deadline
-    dataToUpdate.deadline = null;
-  } else if (updatedData.deadline instanceof Date) {
-    dataToUpdate.deadline = Timestamp.fromDate(updatedData.deadline);
+  if (updatedData.hasOwnProperty('deadline')) { // Check if deadline is explicitly being updated
+    if (updatedData.deadline && typeof updatedData.deadline === 'string') {
+        dataToUpdate.deadline = Timestamp.fromDate(new Date(updatedData.deadline));
+    } else if (updatedData.deadline instanceof Date) {
+        dataToUpdate.deadline = Timestamp.fromDate(updatedData.deadline);
+    } else { // Handles null or undefined if deadline is being cleared
+        dataToUpdate.deadline = null;
+    }
   }
 
 
@@ -131,3 +139,4 @@ export async function updateSavingsGoalAITips(goalId: string, aiTips: string) {
     throw new Error('Failed to update AI tips for savings goal.');
   }
 }
+

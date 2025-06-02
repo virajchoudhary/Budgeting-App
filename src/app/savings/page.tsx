@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit2, Trash2, PiggyBank, Lightbulb, Loader2, Sparkles } from 'lucide-react';
@@ -20,26 +21,33 @@ import { getSavingsGoals, addSavingsGoal as addGoalAction, updateSavingsGoal as 
 
 
 interface GoalLoadingState {
-  [goalId: string]: boolean; // For AI tips loading
+  [goalId: string]: boolean; 
 }
 
 export default function SavingsPage() {
   const { currency } = useSettings();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [loadingTips, setLoadingTips] = useState<GoalLoadingState>({});
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [isMutating, setIsMutating] = useState(false); // For add/edit/delete operations
+  const [isMutating, setIsMutating] = useState(false); 
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+
 
   const fetchUserSavingsGoals = useCallback(async () => {
-    if (!user) {
+    if (!user && !authLoading) {
       setGoals(mockSavingsGoals);
       setIsLoadingData(false);
       return;
+    }
+     if (!user && authLoading) {
+        setIsLoadingData(true);
+        return;
     }
     setIsLoadingData(true);
     try {
@@ -48,23 +56,47 @@ export default function SavingsPage() {
     } catch (error) {
       console.error("Failed to fetch savings goals:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not fetch savings goals." });
-      setGoals(mockSavingsGoals); // Fallback
+      setGoals(mockSavingsGoals); 
     } finally {
       setIsLoadingData(false);
     }
-  }, [user, toast]);
+  }, [user, authLoading, toast]);
 
   useEffect(() => {
-    if (!authLoading) {
-      fetchUserSavingsGoals();
-    }
-  }, [authLoading, fetchUserSavingsGoals]);
-
-  const handleAddGoal = async (newGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips'>) => {
+    fetchUserSavingsGoals();
+  }, [fetchUserSavingsGoals]);
+  
+  const handleOpenCreateDialog = () => {
     if (!user) {
-      toast({ variant: "destructive", title: "Not Authenticated", description: "Please log in to add goals." });
+      toast({ title: "Authentication Required", description: "Please log in to add savings goals." });
+      router.push('/login');
       return;
     }
+    setEditingGoal(null);
+    setIsAddDialogOpen(true);
+  };
+
+  const handleOpenEditDialog = (goal: SavingsGoal) => {
+    if (!user) {
+      toast({ title: "Authentication Required", description: "Please log in to edit savings goals." });
+      router.push('/login');
+      return;
+    }
+    setEditingGoal(goal);
+    setIsAddDialogOpen(true);
+  };
+  
+  const handleAttemptDelete = (goalId: string) => {
+    if (!user) {
+      toast({ title: "Authentication Required", description: "Please log in to delete savings goals." });
+      router.push('/login');
+      return;
+    }
+    handleDeleteGoal(goalId);
+  };
+
+  const handleAddGoal = async (newGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips' | 'createdAt' | 'updatedAt'>) => {
+    if (!user) return;
     setIsMutating(true);
     try {
       await addGoalAction(newGoalData);
@@ -74,34 +106,29 @@ export default function SavingsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not add goal." });
     } finally {
       setIsMutating(false);
-      setIsAddDialogOpen(false); // Close dialog
+      setIsAddDialogOpen(false); 
     }
   };
 
-  const handleUpdateGoal = async (updatedGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips'>) => {
-    if (!editingGoal || !user) {
-      toast({ variant: "destructive", title: "Error", description: "Cannot update goal." });
-      return;
-    }
+  const handleUpdateGoal = async (updatedGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips' | 'createdAt' | 'updatedAt'>) => {
+    if (!editingGoal || !user) return;
     setIsMutating(true);
     try {
       await updateGoalAction(editingGoal.id, updatedGoalData);
       toast({ title: "Savings Goal Updated", description: "Your goal has been updated." });
       fetchUserSavingsGoals();
-    } catch (error: any) { // Added opening brace for catch block
+    } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not update goal." });
-    } finally { // Added closing brace for catch block
+    } finally {
       setEditingGoal(null);
       setIsMutating(false);
-      setIsAddDialogOpen(false); // Close dialog
+      setIsAddDialogOpen(false); 
     }
   };
   
   const handleDeleteGoal = async (goalId: string) => {
-    if (!user) {
-      toast({ variant: "destructive", title: "Not Authenticated", description: "Please log in to delete goals." });
-      return;
-    }
+    if (!user) return;
+    setDeletingItemId(goalId);
     setIsMutating(true);
     try {
       await deleteGoalAction(goalId);
@@ -111,12 +138,14 @@ export default function SavingsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not delete goal." });
     } finally {
       setIsMutating(false);
+      setDeletingItemId(null);
     }
   };
 
   const handleFetchAiTips = async (goal: SavingsGoal) => {
     if (!user) {
-        toast({ variant: "destructive", title: "Login Required", description: "Please log in to get AI tips." });
+        toast({ title: "Authentication Required", description: "Please log in to get AI tips." });
+        router.push('/login');
         return;
     }
     setLoadingTips(prev => ({ ...prev, [goal.id]: true }));
@@ -127,12 +156,14 @@ export default function SavingsPage() {
         currentAmount: goal.currentAmount,
         deadline: goal.deadline,
       });
-      await updateSavingsGoalAITips(goal.id, result.tips); // Save tips to Firestore
+      await updateSavingsGoalAITips(goal.id, result.tips); 
+      // Optimistically update UI or re-fetch
       setGoals(prevGoals => 
         prevGoals.map(g => 
           g.id === goal.id ? { ...g, aiTips: result.tips } : g
         )
       );
+      // fetchUserSavingsGoals(); // Or re-fetch for consistency
       toast({ title: "AI Tips Generated!", description: "Your personalized tips are ready."});
     } catch (error) {
       console.error("Error fetching AI tips:", error);
@@ -148,7 +179,7 @@ export default function SavingsPage() {
 
   const pageIsLoading = authLoading || isLoadingData;
 
-  if (pageIsLoading) {
+  if (pageIsLoading && !goals.length) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -162,18 +193,18 @@ export default function SavingsPage() {
         title="Savings Goals"
         description="Set and track your financial savings goals. Get AI-powered tips!"
         actions={
-          <Button onClick={() => { setEditingGoal(null); setIsAddDialogOpen(true); }} disabled={!user || (isMutating && !editingGoal)}>
-            {(isMutating && !editingGoal) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4" />}
+          <Button onClick={handleOpenCreateDialog} disabled={(isMutating && !editingGoal && !deletingItemId) || (authLoading && !user)}>
+            {(isMutating && !editingGoal && !deletingItemId) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4" />}
              Add Savings Goal
           </Button>
         }
       />
 
-      {goals.length === 0 ? (
+      {goals.length === 0 && !pageIsLoading ? (
         <ScrollFadeIn>
          <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {user ? "No savings goals set yet. Click 'Add Savings Goal' to get started." : "Log in to manage your savings goals."}
+            {user ? "No savings goals set yet. Click 'Add Savings Goal' to get started." : "Log in to manage your savings goals, or click 'Add Savings Goal' to be guided to login."}
           </CardContent>
         </Card>
         </ScrollFadeIn>
@@ -182,6 +213,7 @@ export default function SavingsPage() {
           {goals.map((goal) => {
             const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
             const isAITipsLoading = loadingTips[goal.id];
+            const isCurrentGoalMutating = isMutating && (editingGoal?.id === goal.id || deletingItemId === goal.id);
             
             return (
               <ScrollFadeIn key={goal.id}>
@@ -195,18 +227,16 @@ export default function SavingsPage() {
                           {goal.deadline && <CardDescription>Deadline: {format(new Date(goal.deadline), "MMM dd, yyyy")}</CardDescription>}
                         </div>
                       </div>
-                       {user && (
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}} disabled={(isMutating && editingGoal?.id === goal.id) || isAITipsLoading}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleOpenEditDialog(goal)} disabled={isCurrentGoalMutating || isAITipsLoading || (isMutating && !isCurrentGoalMutating)}>
                              {(isMutating && editingGoal?.id === goal.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Edit2 className="h-4 w-4" />}
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleDeleteGoal(goal.id)} disabled={isMutating || isAITipsLoading}>
-                            {isMutating && editingGoal?.id !== goal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleAttemptDelete(goal.id)} disabled={isCurrentGoalMutating || isAITipsLoading || (isMutating && !isCurrentGoalMutating)}>
+                            {deletingItemId === goal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
-                       )}
                     </div>
                   </CardHeader>
                   <CardContent className="flex-grow space-y-4">
@@ -233,7 +263,7 @@ export default function SavingsPage() {
                         size="sm" 
                         className="w-full"
                         onClick={() => handleFetchAiTips(goal)} 
-                        disabled={isAITipsLoading || isMutating}
+                        disabled={isAITipsLoading || isCurrentGoalMutating || (isMutating && !isCurrentGoalMutating)}
                       >
                         {isAITipsLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" />}
                         {isAITipsLoading ? 'Getting Tips...' : 'Get AI Tips'}
@@ -250,15 +280,13 @@ export default function SavingsPage() {
         </div>
       )}
 
-      {user && (
-        <AddSavingsGoalDialog
-            isOpen={isAddDialogOpen}
-            onOpenChange={setIsAddDialogOpen}
-            onGoalSaved={editingGoal ? handleUpdateGoal : handleAddGoal}
-            existingGoal={editingGoal ?? undefined}
-            isSubmitting={isMutating && (editingGoal ? editingGoal.id === editingGoal?.id : !editingGoal)}
-        />
-      )}
+      <AddSavingsGoalDialog
+          isOpen={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onGoalSaved={editingGoal ? handleUpdateGoal : handleAddGoal}
+          existingGoal={editingGoal ?? undefined}
+          isSubmitting={isMutating && (editingGoal ? editingGoal.id === editingGoal?.id : (!editingGoal && !deletingItemId))}
+      />
     </div>
   );
 }

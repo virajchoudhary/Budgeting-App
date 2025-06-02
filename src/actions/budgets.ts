@@ -12,7 +12,7 @@ const getCurrentUserId = (): string | null => {
   return user ? user.uid : null;
 };
 
-export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spent'>) {
+export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spent' | 'createdAt' | 'updatedAt'>) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
@@ -32,12 +32,11 @@ export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spen
     const docRef = await addDoc(collection(db, 'budgets'), newBudget);
     revalidatePath('/budgets');
     revalidatePath('/'); // For dashboard budget overview
-    // Return the budget data in the same shape the client expects (dates as ISO strings)
     return { 
       id: docRef.id, 
-      ...newBudget, 
-      startDate: budgetData.startDate, 
-      endDate: budgetData.endDate,
+      ...budgetData, // Return the original data shape for dates
+      userId,
+      spent: 0,
       createdAt: new Date().toISOString(), // Approximate client-side representation
       updatedAt: new Date().toISOString(), // Approximate client-side representation
     } as Budget;
@@ -75,7 +74,7 @@ export async function getBudgets(): Promise<Budget[]> {
   }
 }
 
-export async function updateBudget(budgetId: string, updatedData: Partial<Omit<Budget, 'id' | 'userId'>>) {
+export async function updateBudget(budgetId: string, updatedData: Partial<Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
@@ -83,19 +82,22 @@ export async function updateBudget(budgetId: string, updatedData: Partial<Omit<B
 
   const budgetDocRef = doc(db, 'budgets', budgetId);
   
+  // Prepare data, ensuring serverTimestamp for updatedAt
   const dataToUpdate: any = { ...updatedData, updatedAt: serverTimestamp() };
 
+  // Convert date strings to Timestamps if they exist in updatedData
   if (updatedData.startDate && typeof updatedData.startDate === 'string') {
     dataToUpdate.startDate = Timestamp.fromDate(new Date(updatedData.startDate));
-  } else if (updatedData.startDate instanceof Date) {
+  } else if (updatedData.startDate instanceof Date) { // Handle if Date object is passed
      dataToUpdate.startDate = Timestamp.fromDate(updatedData.startDate);
   }
 
   if (updatedData.endDate && typeof updatedData.endDate === 'string') {
     dataToUpdate.endDate = Timestamp.fromDate(new Date(updatedData.endDate));
-  } else if (updatedData.endDate instanceof Date) {
+  } else if (updatedData.endDate instanceof Date) { // Handle if Date object is passed
     dataToUpdate.endDate = Timestamp.fromDate(updatedData.endDate);
   }
+  // 'spent' field can be updated directly if provided in updatedData
 
   try {
     await updateDoc(budgetDocRef, dataToUpdate);
@@ -124,3 +126,4 @@ export async function deleteBudget(budgetId: string) {
     throw new Error('Failed to delete budget.');
   }
 }
+
