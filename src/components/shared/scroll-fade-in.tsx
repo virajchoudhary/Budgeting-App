@@ -1,45 +1,51 @@
 
 "use client";
 
-import React, { useRef, type ReactNode } from 'react';
+import React, { useRef, type ReactNode, type RefObject } from 'react';
+import { Slot } from '@radix-ui/react-slot';
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer';
 import { cn } from '@/lib/utils';
 
 interface ScrollFadeInProps {
   children: ReactNode;
+  asChild?: boolean;
   className?: string;
-  delay?: `delay-${number}`; // Tailwind delay classes like 'delay-100', 'delay-200'
-  duration?: `duration-${number}`; // Tailwind duration classes
+  delay?: `delay-${number}`;
+  duration?: `duration-${number}`;
   threshold?: number;
-  once?: boolean; // Trigger animation only once
-  translateY?: `translate-y-${number | string}`; // Tailwind translate-y class
+  once?: boolean;
+  translateY?: `translate-y-${number | string}`;
 }
 
 export function ScrollFadeIn({
   children,
+  asChild,
   className,
-  delay = '', // Default to no delay
-  duration = 'duration-500', // Changed default duration
+  delay = '',
+  duration = 'duration-500',
   threshold = 0.1,
   once = true,
-  translateY = 'translate-y-4', // Changed default translateY
+  translateY = 'translate-y-4',
 }: ScrollFadeInProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const entry = useIntersectionObserver(ref, { threshold, freezeOnceVisible: once });
+  const elementRef = useRef<HTMLElement | null>(null);
+  const entry = useIntersectionObserver(elementRef as RefObject<Element>, { threshold, freezeOnceVisible: once });
   const isVisible = !!entry?.isIntersecting;
 
+  const Comp = asChild ? Slot : 'div';
+
+  const animationClasses = cn(
+    'transition-all ease-out transform',
+    duration,
+    delay,
+    isVisible ? 'opacity-100 translate-y-0' : `opacity-0 ${translateY}`
+  );
+
   return (
-    <div
-      ref={ref}
-      className={cn(
-        'transition-all ease-out transform',
-        duration,
-        delay,
-        isVisible ? 'opacity-100 translate-y-0' : `opacity-0 ${translateY}`,
-        className
-      )}
+    <Comp
+      ref={elementRef as any} // Type 'any' for ref when Comp can be Slot or 'div'
+      className={cn(animationClasses, className)}
     >
       {children}
-    </div>
+    </Comp>
   );
 }

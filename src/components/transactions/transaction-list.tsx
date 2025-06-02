@@ -100,7 +100,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
               {transactions.map((transaction, index) => {
                 const delayClass = staggerDelays[Math.min(index, staggerDelays.length - 1)];
                 return (
-                  <ScrollFadeIn key={transaction.id} delay={delayClass as `delay-${number}` | undefined}>
+                  <ScrollFadeIn asChild key={transaction.id} delay={delayClass as `delay-${number}` | undefined}>
                     <TableRow className="hover:bg-muted/20 transition-colors duration-150">
                       <TableCell>{format(new Date(transaction.date), 'MMM dd, yyyy')}</TableCell>
                       <TableCell className="font-medium">{transaction.description}</TableCell>
@@ -155,4 +155,3 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
     </>
   );
 }
-
