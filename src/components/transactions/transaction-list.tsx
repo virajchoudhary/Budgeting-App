@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Edit2, Trash2, MoreVertical, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   DropdownMenu,
@@ -29,30 +29,41 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
   const { currency } = useSettings();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actionedTransactionId, setActionedTransactionId] = useState<string | null>(null); // For loading state on specific row
 
   const handleEdit = (transaction: Transaction) => {
-    if (!canEditDelete) return; // Prevent editing if not allowed
+    if (!canEditDelete) return; 
     setEditingTransaction(transaction);
   };
 
   const handleSaveEdit = async (transactionData: Omit<Transaction, 'id' | 'userId' | 'date'> & { date: string | Date }) => {
     if (!editingTransaction || !canEditDelete) return;
+    setActionedTransactionId(editingTransaction.id);
     setIsSubmitting(true);
     const updatedTransaction: Transaction = {
       ...editingTransaction, 
       ...transactionData,
       date: transactionData.date instanceof Date ? transactionData.date.toISOString() : new Date(transactionData.date).toISOString(),
     };
-    await onEditTransaction(updatedTransaction);
-    setEditingTransaction(null);
-    setIsSubmitting(false);
+    try {
+      await onEditTransaction(updatedTransaction);
+    } finally {
+      setEditingTransaction(null);
+      setIsSubmitting(false);
+      setActionedTransactionId(null);
+    }
   };
 
   const handleDelete = async (transactionId: string) => {
-    if (!canEditDelete) return; // Prevent deletion if not allowed
+    if (!canEditDelete) return;
+    setActionedTransactionId(transactionId);
     setIsSubmitting(true);
-    await onDeleteTransaction(transactionId);
-    setIsSubmitting(false);
+    try {
+      await onDeleteTransaction(transactionId);
+    } finally {
+      setIsSubmitting(false);
+      setActionedTransactionId(null);
+    }
   }
   
   if (transactions.length === 0) {
@@ -91,9 +102,12 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                   </TableCell>
                   {canEditDelete && (
                     <TableCell className="text-center">
+                       {isSubmitting && actionedTransactionId === transaction.id ? (
+                        <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+                      ) : (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" disabled={isSubmitting}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8"> {/* Removed hover:bg-transparent */}
                             <MoreVertical className="h-4 w-4" />
                             <span className="sr-only">Actions</span>
                           </Button>
@@ -107,6 +121,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                       )}
                     </TableCell>
                   )}
                 </TableRow>
@@ -115,10 +130,13 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
           </Table>
         </CardContent>
       </Card>
-      {editingTransaction && canEditDelete && ( // Ensure dialog only renders if editing is possible
+      {editingTransaction && canEditDelete && ( 
         <AddTransactionDialog
           isOpen={!!editingTransaction}
-          onOpenChange={() => setEditingTransaction(null)}
+          onOpenChange={(open) => {
+            if (!open && isSubmitting) return; // Prevent closing if submitting
+            setEditingTransaction(null)
+          }}
           onTransactionAdded={handleSaveEdit}
           existingTransaction={editingTransaction}
         />
@@ -126,4 +144,3 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
     </>
   );
 }
-

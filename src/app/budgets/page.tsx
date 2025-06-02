@@ -82,13 +82,18 @@ export default function BudgetsPage() {
     }
     setIsMutating(true);
     try {
-      await addBudgetAction(newBudgetData);
-      toast({ title: "Budget Created", description: "Your new budget has been saved." });
-      fetchUserBudgets();
+      const createdBudget = await addBudgetAction(newBudgetData);
+      if (createdBudget) {
+        toast({ title: "Budget Created", description: "Your new budget has been saved." });
+        fetchUserBudgets(); // Re-fetch to get the latest list
+      } else {
+        throw new Error("Budget creation returned undefined.");
+      }
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not create budget." });
     } finally {
       setIsMutating(false);
+      setIsCreateDialogOpen(false); // Close dialog on success or failure if it was open for add
     }
   };
 
@@ -107,6 +112,7 @@ export default function BudgetsPage() {
     } finally {
       setEditingBudget(null);
       setIsMutating(false);
+      setIsCreateDialogOpen(false); // Close dialog on success or failure
     }
   };
 
@@ -144,7 +150,7 @@ export default function BudgetsPage() {
         description="Create and manage your spending budgets."
         actions={
           <Button onClick={() => { setEditingBudget(null); setIsCreateDialogOpen(true); }} disabled={!user || isMutating}>
-            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+            {isMutating && !editingBudget ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
              Create Budget
           </Button>
         }
@@ -167,7 +173,7 @@ export default function BudgetsPage() {
             
             return (
               <ScrollFadeIn key={budget.id}>
-                <Card className="flex flex-col hover:scale-[1.01] transform transition-transform duration-300 h-full">
+                <Card className="flex flex-col h-full"> {/* Removed hover:scale transform */}
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
@@ -176,12 +182,12 @@ export default function BudgetsPage() {
                       </div>
                       {user && (
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }} disabled={isMutating}>
-                            <Edit2 className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingBudget(budget); setIsCreateDialogOpen(true); }} disabled={isMutating && editingBudget?.id === budget.id}>
+                            {isMutating && editingBudget?.id === budget.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <Edit2 className="h-4 w-4" /> }
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => handleDeleteBudget(budget.id)} disabled={isMutating}>
-                            {isMutating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => handleDeleteBudget(budget.id)} disabled={isMutating}>
+                            {isMutating && editingBudget?.id !== budget.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
@@ -221,7 +227,7 @@ export default function BudgetsPage() {
           onOpenChange={setIsCreateDialogOpen}
           onBudgetSaved={editingBudget ? handleUpdateBudget : handleAddBudget}
           existingBudget={editingBudget ?? undefined}
-          isSubmitting={isMutating}
+          isSubmitting={isMutating && (editingBudget ? editingBudget.id === editingBudget?.id : !editingBudget) } // Pass isMutating state correctly
         />
       )}
     </div>

@@ -60,7 +60,7 @@ export default function SavingsPage() {
     }
   }, [authLoading, fetchUserSavingsGoals]);
 
-  const handleAddGoal = async (newGoalData: Omit<SavingsGoal, 'id' | 'userId'>) => {
+  const handleAddGoal = async (newGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips'>) => {
     if (!user) {
       toast({ variant: "destructive", title: "Not Authenticated", description: "Please log in to add goals." });
       return;
@@ -74,10 +74,11 @@ export default function SavingsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not add goal." });
     } finally {
       setIsMutating(false);
+      setIsAddDialogOpen(false); // Close dialog
     }
   };
 
-  const handleUpdateGoal = async (updatedGoalData: Omit<SavingsGoal, 'id' | 'userId'>) => {
+  const handleUpdateGoal = async (updatedGoalData: Omit<SavingsGoal, 'id' | 'userId' | 'aiTips'>) => {
     if (!editingGoal || !user) {
       toast({ variant: "destructive", title: "Error", description: "Cannot update goal." });
       return;
@@ -92,6 +93,7 @@ export default function SavingsPage() {
     } finally {
       setEditingGoal(null);
       setIsMutating(false);
+      setIsAddDialogOpen(false); // Close dialog
     }
   };
   
@@ -160,8 +162,8 @@ export default function SavingsPage() {
         title="Savings Goals"
         description="Set and track your financial savings goals. Get AI-powered tips!"
         actions={
-          <Button onClick={() => { setEditingGoal(null); setIsAddDialogOpen(true); }} disabled={!user || isMutating}>
-            {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4" />}
+          <Button onClick={() => { setEditingGoal(null); setIsAddDialogOpen(true); }} disabled={!user || (isMutating && !editingGoal)}>
+            {(isMutating && !editingGoal) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4" />}
              Add Savings Goal
           </Button>
         }
@@ -183,7 +185,7 @@ export default function SavingsPage() {
             
             return (
               <ScrollFadeIn key={goal.id}>
-                <Card className="flex flex-col hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01] transform transition-transform duration-300 h-full">
+                <Card className="flex flex-col h-full"> {/* Removed hover scale/shadow */}
                   <CardHeader>
                      <div className="flex justify-between items-start">
                       <div className="flex items-center gap-3">
@@ -195,12 +197,12 @@ export default function SavingsPage() {
                       </div>
                        {user && (
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}} disabled={isMutating || isAITipsLoading}>
-                            <Edit2 className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingGoal(goal); setIsAddDialogOpen(true);}} disabled={(isMutating && editingGoal?.id === goal.id) || isAITipsLoading}>
+                             {(isMutating && editingGoal?.id === goal.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Edit2 className="h-4 w-4" />}
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-transparent" onClick={() => handleDeleteGoal(goal.id)} disabled={isMutating || isAITipsLoading}>
-                            {isMutating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500" onClick={() => handleDeleteGoal(goal.id)} disabled={isMutating || isAITipsLoading}>
+                            {isMutating && editingGoal?.id !== goal.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
@@ -254,7 +256,7 @@ export default function SavingsPage() {
             onOpenChange={setIsAddDialogOpen}
             onGoalSaved={editingGoal ? handleUpdateGoal : handleAddGoal}
             existingGoal={editingGoal ?? undefined}
-            isSubmitting={isMutating}
+            isSubmitting={isMutating && (editingGoal ? editingGoal.id === editingGoal?.id : !editingGoal)}
         />
       )}
     </div>
