@@ -15,7 +15,7 @@ interface DataCardProps {
 
 export function DataCard({ title, description, content, footer, icon: Icon, className, titleClassName }: DataCardProps) {
   return (
-    <Card className={cn("transition-shadow duration-300", className)}> {/* Removed shadow-lg hover:shadow-xl, base shadow is on Card now */}
+    <Card className={cn(className)}> 
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className={cn("text-xl font-semibold", titleClassName)}>
@@ -30,3 +30,4 @@ export function DataCard({ title, description, content, footer, icon: Icon, clas
     </Card>
   );
 }
+

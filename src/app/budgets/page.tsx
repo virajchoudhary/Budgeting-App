@@ -31,8 +31,8 @@ export default function BudgetsPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  const [operationTargetId, setOperationTargetId] = useState<string | null>(null); // For edit/delete specific loaders
-  const [isCreating, setIsCreating] = useState(false); // For create button loader
+  const [operationTargetId, setOperationTargetId] = useState<string | null>(null); 
+  const [isCreating, setIsCreating] = useState(false); 
 
   const fetchUserBudgets = useCallback(async () => {
     if (!user && !authLoading) {
@@ -85,7 +85,7 @@ export default function BudgetsPage() {
   const handleOpenCreateDialog = () => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to create a budget." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     setEditingBudget(null);
@@ -95,7 +95,7 @@ export default function BudgetsPage() {
   const handleOpenEditDialog = (budget: Budget) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to edit budgets." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     setEditingBudget(budget);
@@ -105,7 +105,7 @@ export default function BudgetsPage() {
   const handleAttemptDelete = (budgetId: string) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to delete budgets." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     handleDeleteBudget(budgetId);
@@ -170,7 +170,7 @@ export default function BudgetsPage() {
 
   const pageIsLoading = authLoading || isLoadingData;
 
-  if (pageIsLoading && !budgets.length && !user) { // Adjusted condition for initial load
+  if (pageIsLoading && !budgets.length && !user) { 
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -271,3 +271,4 @@ export default function BudgetsPage() {
     </div>
   );
 }
+

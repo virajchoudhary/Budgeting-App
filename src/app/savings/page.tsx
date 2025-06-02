@@ -69,7 +69,7 @@ export default function SavingsPage() {
   const handleOpenCreateDialog = () => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to add savings goals." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     setEditingGoal(null);
@@ -79,7 +79,7 @@ export default function SavingsPage() {
   const handleOpenEditDialog = (goal: SavingsGoal) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to edit savings goals." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     setEditingGoal(goal);
@@ -89,7 +89,7 @@ export default function SavingsPage() {
   const handleAttemptDelete = (goalId: string) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to delete savings goals." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     handleDeleteGoal(goalId);
@@ -145,7 +145,7 @@ export default function SavingsPage() {
   const handleFetchAiTips = async (goal: SavingsGoal) => {
     if (!user) {
         toast({ title: "Authentication Required", description: "Please log in to get AI tips." });
-        router.push('/login');
+        router.push('/auth');
         return;
     }
     setLoadingTips(prev => ({ ...prev, [goal.id]: true }));
@@ -157,13 +157,11 @@ export default function SavingsPage() {
         deadline: goal.deadline,
       });
       await updateSavingsGoalAITips(goal.id, result.tips); 
-      // Optimistically update UI or re-fetch
       setGoals(prevGoals => 
         prevGoals.map(g => 
           g.id === goal.id ? { ...g, aiTips: result.tips } : g
         )
       );
-      // fetchUserSavingsGoals(); // Or re-fetch for consistency
       toast({ title: "AI Tips Generated!", description: "Your personalized tips are ready."});
     } catch (error) {
       console.error("Error fetching AI tips:", error);
@@ -290,3 +288,4 @@ export default function SavingsPage() {
     </div>
   );
 }
+

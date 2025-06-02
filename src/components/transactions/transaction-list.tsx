@@ -17,13 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AddTransactionDialog } from './add-transaction-dialog';
 import { useSettings } from '@/contexts/settings-context';
-import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; // Import ScrollFadeIn
+import { ScrollFadeIn } from '@/components/shared/scroll-fade-in'; 
 
 interface TransactionListProps {
   transactions: Transaction[];
   onEditTransaction: (transaction: Transaction) => Promise<void>; 
   onDeleteTransaction: (transactionId: string) => Promise<void>; 
-  canEditDelete: boolean; // New prop
+  canEditDelete: boolean; 
 }
 
 const staggerDelays: (`delay-${number}`)[] = ['delay-0', 'delay-75', 'delay-150', 'delay-200', 'delay-300'];
@@ -33,7 +33,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
   const { currency } = useSettings();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [actionedTransactionId, setActionedTransactionId] = useState<string | null>(null); // For loading state on specific row
+  const [actionedTransactionId, setActionedTransactionId] = useState<string | null>(null); 
 
   const handleEdit = (transaction: Transaction) => {
     if (!canEditDelete) return; 
@@ -145,7 +145,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
         <AddTransactionDialog
           isOpen={!!editingTransaction}
           onOpenChange={(open) => {
-            if (!open && isSubmitting) return; // Prevent closing if submitting
+            if (!open && isSubmitting) return; 
             setEditingTransaction(null)
           }}
           onTransactionAdded={handleSaveEdit}
@@ -155,3 +155,4 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
     </>
   );
 }
+
