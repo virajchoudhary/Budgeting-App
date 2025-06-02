@@ -94,11 +94,9 @@ export default function SavingsPage() {
           {goals.map((goal, index) => {
             const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
             const isLoading = loadingTips[goal.id];
-            const delayClass = `delay-${index * 100}`;
             
-
             return (
-              <ScrollFadeIn key={goal.id} delay={delayClass as any}>
+              <ScrollFadeIn key={goal.id}>
                 <Card className="flex flex-col hover:shadow-xl transition-shadow duration-300 hover:scale-[1.01] transform transition-transform duration-300 h-full">
                   <CardHeader>
                      <div className="flex justify-between items-start">
@@ -171,4 +169,3 @@ export default function SavingsPage() {
     </div>
   );
 }
-

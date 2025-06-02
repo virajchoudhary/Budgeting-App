@@ -83,12 +83,9 @@ export default function BudgetsPage() {
             const progress = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
             const isOverspent = budget.spent > budget.amount;
             const period = formattedPeriods[budget.id] || "Loading period...";
-            // Simplified delayClass definition to troubleshoot parsing error
-            const delayClass = `delay-${index * 100}`;
             
-
             return (
-              <ScrollFadeIn key={budget.id} delay={delayClass as any}>
+              <ScrollFadeIn key={budget.id}>
                 <Card className="flex flex-col hover:scale-[1.01] transform transition-transform duration-300 h-full">
                   <CardHeader>
                     <div className="flex justify-between items-start">
