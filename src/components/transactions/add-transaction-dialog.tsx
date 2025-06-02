@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -20,20 +21,21 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Transaction, TransactionCategory } from '@/types';
 import { transactionCategories } from '@/types';
-import { categorizeTransaction } from '@/ai/flows/categorize-transaction'; // GenAI import
+import { categorizeTransaction } from '@/ai/flows/categorize-transaction';
 
 interface AddTransactionDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTransactionAdded: (transaction: Omit<Transaction, 'id'>) => void;
-  existingTransaction?: Transaction;
+  // Accepts data for new transaction (userId handled by action) or full existing transaction for updates
+  onTransactionAdded: (transactionData: Omit<Transaction, 'id' | 'userId' | 'date'> & { date: string | Date }) => void;
+  existingTransaction?: Transaction; // Full transaction for editing
 }
 
-export function AddTransactionDialog({ 
-  isOpen, 
-  onOpenChange, 
+export function AddTransactionDialog({
+  isOpen,
+  onOpenChange,
   onTransactionAdded,
-  existingTransaction 
+  existingTransaction
 }: AddTransactionDialogProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -41,29 +43,28 @@ export function AddTransactionDialog({
   const [category, setCategory] = useState<TransactionCategory | ''>('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [isCategorizing, setIsCategorizing] = useState(false);
-  const [userRules, setUserRules] = useState(''); // For AI categorization
+  const [userRules, setUserRules] = useState('');
 
   useEffect(() => {
     if (existingTransaction) {
       setDescription(existingTransaction.description);
       setAmount(String(Math.abs(existingTransaction.amount)));
-      setDate(new Date(existingTransaction.date));
+      setDate(new Date(existingTransaction.date)); // existingTransaction.date is ISO string
       setCategory(existingTransaction.category as TransactionCategory);
       setType(existingTransaction.type);
     } else {
-      // Reset form for new transaction
       setDescription('');
       setAmount('');
       setDate(new Date());
       setCategory('');
       setType('expense');
+      setUserRules('');
     }
   }, [existingTransaction, isOpen]);
 
 
   const handleSuggestCategory = async () => {
     if (!description) {
-      // Optionally, show a toast message
       alert("Please enter a description to suggest a category.");
       return;
     }
@@ -73,12 +74,11 @@ export function AddTransactionDialog({
       if (result.suggestedCategory && transactionCategories.includes(result.suggestedCategory as TransactionCategory)) {
         setCategory(result.suggestedCategory as TransactionCategory);
       } else {
-        setCategory('Uncategorized'); // Fallback
+        setCategory('Uncategorized');
       }
     } catch (error) {
       console.error("Error suggesting category:", error);
-      // Optionally, show an error toast
-      setCategory('Uncategorized'); // Fallback on error
+      setCategory('Uncategorized');
     } finally {
       setIsCategorizing(false);
     }
@@ -87,19 +87,22 @@ export function AddTransactionDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!date || !description || !amount || !category) {
-      // Basic validation feedback
       alert("Please fill all required fields.");
       return;
     }
     const numericAmount = parseFloat(amount);
-    onTransactionAdded({
-      date: date.toISOString(),
+    
+    // Data for server action. `id` and `userId` are handled by the action or not needed for new.
+    const transactionData = {
+      date: date.toISOString(), // Server action expects date string or Date object
       description,
       amount: type === 'expense' ? -numericAmount : numericAmount,
       category,
       type,
-    });
-    onOpenChange(false); // Close dialog
+    };
+
+    onTransactionAdded(transactionData);
+    onOpenChange(false);
   };
 
   return (
@@ -170,7 +173,6 @@ export function AddTransactionDialog({
               </Button>
             </div>
           </div>
-          {/* Optional: User Rules for AI */}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="userRules" className="text-right">AI Rules (Opt.)</Label>
             <Input id="userRules" value={userRules} onChange={(e) => setUserRules(e.target.value)} className="col-span-3" placeholder="e.g., 'Amazon' is 'Shopping'" />

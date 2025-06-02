@@ -15,29 +15,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AddTransactionDialog } from './add-transaction-dialog'; // Re-use for editing
+import { AddTransactionDialog } from './add-transaction-dialog';
 import { useSettings } from '@/contexts/settings-context';
 
 interface TransactionListProps {
   transactions: Transaction[];
-  onEditTransaction: (transaction: Transaction) => void;
-  onDeleteTransaction: (transactionId: string) => void;
+  onEditTransaction: (transaction: Transaction) => Promise<void>; // Now async for server action
+  onDeleteTransaction: (transactionId: string) => Promise<void>; // Now async for server action
 }
 
 export function TransactionList({ transactions, onEditTransaction, onDeleteTransaction }: TransactionListProps) {
   const { currency } = useSettings();
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEdit = (transaction: Transaction) => {
     setEditingTransaction(transaction);
   };
 
-  const handleSaveEdit = (updatedTransaction: Omit<Transaction, 'id'>) => {
-    if (editingTransaction) {
-      onEditTransaction({ ...updatedTransaction, id: editingTransaction.id });
-    }
+  const handleSaveEdit = async (transactionData: Omit<Transaction, 'id' | 'userId' | 'date'> & { date: string | Date }) => {
+    if (!editingTransaction) return;
+    setIsSubmitting(true);
+    // Construct the full transaction object for the onEditTransaction prop
+    const updatedTransaction: Transaction = {
+      ...editingTransaction, // Preserve id and userId
+      ...transactionData,
+      date: transactionData.date instanceof Date ? transactionData.date.toISOString() : new Date(transactionData.date).toISOString(),
+    };
+    await onEditTransaction(updatedTransaction);
     setEditingTransaction(null);
+    setIsSubmitting(false);
   };
+
+  const handleDelete = async (transactionId: string) => {
+    setIsSubmitting(true);
+    await onDeleteTransaction(transactionId);
+    setIsSubmitting(false);
+  }
   
   if (transactions.length === 0) {
     return (
@@ -76,16 +90,16 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-transparent" disabled={isSubmitting}>
                           <MoreVertical className="h-4 w-4" />
                            <span className="sr-only">Actions</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(transaction)}>
+                        <DropdownMenuItem onClick={() => handleEdit(transaction)} disabled={isSubmitting}>
                           <Edit2 className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onDeleteTransaction(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400">
+                        <DropdownMenuItem onClick={() => handleDelete(transaction.id)} className="text-red-400 hover:!text-red-400 focus:!text-red-400" disabled={isSubmitting}>
                           <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -101,7 +115,7 @@ export function TransactionList({ transactions, onEditTransaction, onDeleteTrans
         <AddTransactionDialog
           isOpen={!!editingTransaction}
           onOpenChange={() => setEditingTransaction(null)}
-          onTransactionAdded={handleSaveEdit}
+          onTransactionAdded={handleSaveEdit} // This now expects the partial data for an update
           existingTransaction={editingTransaction}
         />
       )}

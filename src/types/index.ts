@@ -1,6 +1,7 @@
 
 export interface Transaction {
   id: string;
+  userId: string; // Added for Firestore user association
   date: string; // ISO string
   description: string;
   amount: number; // positive for income, negative for expense
@@ -27,7 +28,7 @@ export interface SavingsGoal {
   aiTips?: string; // For storing AI generated tips
 }
 
-export type TransactionCategory = 
+export type TransactionCategory =
   | 'Groceries'
   | 'Utilities'
   | 'Rent/Mortgage'
@@ -46,8 +47,8 @@ export type TransactionCategory =
   | 'Uncategorized';
 
 export const transactionCategories: TransactionCategory[] = [
-  'Groceries', 'Utilities', 'Rent/Mortgage', 'Transportation', 'Dining Out', 
-  'Entertainment', 'Shopping', 'Healthcare', 'Income', 'Investments', 'Travel', 
+  'Groceries', 'Utilities', 'Rent/Mortgage', 'Transportation', 'Dining Out',
+  'Entertainment', 'Shopping', 'Healthcare', 'Income', 'Investments', 'Travel',
   'Education', 'Personal Care', 'Gifts/Donations', 'Other', 'Uncategorized'
 ];
 

@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppShell } from '@/components/layout/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import { SettingsProvider } from '@/contexts/settings-context';
+import { AuthProvider } from '@/contexts/auth-context';
 
 export const metadata: Metadata = {
   title: 'Kamski',
@@ -24,13 +25,15 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SettingsProvider>
-          <SidebarProvider defaultOpen>
-            <AppShell>
-              {children}
-            </AppShell>
-          </SidebarProvider>
-        </SettingsProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <SidebarProvider defaultOpen>
+              <AppShell>
+                {children}
+              </AppShell>
+            </SidebarProvider>
+          </SettingsProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>

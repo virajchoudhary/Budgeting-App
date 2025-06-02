@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   SidebarHeader,
   SidebarContent,
@@ -13,39 +13,59 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard } from 'lucide-react'; // Using CreditCard for now
+import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard, UserCircle, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const navItems = [
-  { href: '/', label: 'Overview', icon: Home },
-  { href: '/transactions', label: 'Transactions', icon: ListChecks },
-  { href: '/import', label: 'Import', icon: FileInput },
-  { href: '/budgets', label: 'Budgets', icon: PieChart },
-  { href: '/savings', label: 'Savings', icon: Target },
-  { href: '/insights', label: 'Insights', icon: Brain },
+  { href: '/', label: 'Overview', icon: Home, authRequired: true },
+  { href: '/transactions', label: 'Transactions', icon: ListChecks, authRequired: true },
+  { href: '/import', label: 'Import', icon: FileInput, authRequired: true },
+  { href: '/budgets', label: 'Budgets', icon: PieChart, authRequired: true },
+  { href: '/savings', label: 'Savings', icon: Target, authRequired: true },
+  { href: '/insights', label: 'Insights', icon: Brain, authRequired: true },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: "Logged Out", description: "You have been successfully logged out." });
+      router.push('/login');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({ variant: "destructive", title: "Logout Failed", description: "Could not log out. Please try again." });
+    }
+  };
+
+  const visibleNavItems = navItems.filter(item => !item.authRequired || (item.authRequired && user));
 
   return (
     <>
       <SidebarHeader className="flex items-center justify-between p-4">
         <Link href="/" className="flex items-center gap-2.5">
-          <CreditCard className="h-7 w-7 text-sidebar-primary" /> 
+          <CreditCard className="h-7 w-7 text-sidebar-primary" />
           <h1 className="text-lg font-semibold tracking-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">Kamski</h1>
         </Link>
         <div className="md:hidden">
           <SidebarTrigger />
         </div>
       </SidebarHeader>
-      <Separator className="mx-2 my-0 bg-sidebar-border" /> 
+      <Separator className="mx-2 my-0 bg-sidebar-border" />
       <SidebarContent className="p-2">
         <SidebarMenu>
-          {navItems.map((item) => (
+          {(!loading && user) && visibleNavItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} passHref legacyBehavior>
                 <SidebarMenuButton
-                  asChild 
+                  asChild
                   isActive={pathname === item.href}
                   tooltip={{ children: item.label, side: 'right', align: 'center' }}
                 >
@@ -59,29 +79,60 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <Separator className="mx-2 mt-auto mb-0 bg-sidebar-border" /> 
+      <Separator className="mx-2 mt-auto mb-0 bg-sidebar-border" />
       <SidebarFooter className="p-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-             <Link href="/settings" passHref legacyBehavior>
-                <SidebarMenuButton 
-                    asChild
-                    isActive={pathname === "/settings"}
-                    tooltip={{children: "Settings", side: "right", align: "center"}}
-                >
-                  <a>
-                    <Settings />
-                    <span>Settings</span>
-                  </a>
+          {user ? (
+            <>
+              <SidebarMenuItem>
+                 <Link href="/settings" passHref legacyBehavior>
+                    <SidebarMenuButton
+                        asChild
+                        isActive={pathname === "/settings"}
+                        tooltip={{children: "Settings", side: "right", align: "center"}}
+                    >
+                      <a>
+                        <Settings />
+                        <span>Settings</span>
+                      </a>
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={{children: user.email || "User Profile", side: "right", align: "center"}} className="cursor-default hover:bg-transparent">
+                  <UserCircle />
+                  <span>{user.email}</span>
                 </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip={{children: "Log Out", side: "right", align: "center"}}>
-              <LogOut />
-              <span>Log Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleLogout} tooltip={{children: "Log Out", side: "right", align: "center"}}>
+                  <LogOut />
+                  <span>Log Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </>
+          ) : (
+            <>
+             {!loading && (
+                <>
+                  <SidebarMenuItem>
+                    <Link href="/login" passHref legacyBehavior>
+                      <SidebarMenuButton asChild isActive={pathname === "/login"} tooltip={{children: "Log In", side: "right", align: "center"}}>
+                        <a><LogIn /><span>Log In</span></a>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <Link href="/signup" passHref legacyBehavior>
+                      <SidebarMenuButton asChild isActive={pathname === "/signup"} tooltip={{children: "Sign Up", side: "right", align: "center"}}>
+                        <a><UserCircle /><span>Sign Up</span></a>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                </>
+              )}
+            </>
+          )}
         </SidebarMenu>
       </SidebarFooter>
     </>
