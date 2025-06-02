@@ -31,7 +31,8 @@ export default function BudgetsPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  const [formattedPeriods, setFormattedPeriods] = useState<Record<string, string>>({});
+  const [operationTargetId, setOperationTargetId] = useState<string | null>(null); // For edit/delete specific loaders
+  const [isCreating, setIsCreating] = useState(false); // For create button loader
 
   const fetchUserBudgets = useCallback(async () => {
     if (!user && !authLoading) {
@@ -50,7 +51,7 @@ export default function BudgetsPage() {
     } catch (error) {
       console.error("Failed to fetch budgets:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not fetch budgets." });
-      setBudgets(mockBudgets); 
+      setBudgets(mockBudgets);
     } finally {
       setIsLoadingData(false);
     }
@@ -60,7 +61,8 @@ export default function BudgetsPage() {
     fetchUserBudgets();
   }, [fetchUserBudgets]);
 
-  useEffect(() => {
+  const [formattedPeriods, setFormattedPeriods] = useState<Record<string, string>>({});
+   useEffect(() => {
     const newFormattedPeriods: Record<string, string> = {};
     budgets.forEach(budget => {
       try {
@@ -79,6 +81,7 @@ export default function BudgetsPage() {
     setFormattedPeriods(newFormattedPeriods);
   }, [budgets]);
 
+
   const handleOpenCreateDialog = () => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to create a budget." });
@@ -88,7 +91,7 @@ export default function BudgetsPage() {
     setEditingBudget(null);
     setIsCreateDialogOpen(true);
   };
-  
+
   const handleOpenEditDialog = (budget: Budget) => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to edit budgets." });
@@ -111,11 +114,12 @@ export default function BudgetsPage() {
   const handleAddBudget = async (newBudgetData: Omit<Budget, 'id' | 'spent' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     if(!user) return;
     setIsMutating(true);
+    setIsCreating(true);
     try {
       const createdBudget = await addBudgetAction(newBudgetData);
       if (createdBudget) {
         toast({ title: "Budget Created", description: "Your new budget has been saved." });
-        fetchUserBudgets(); 
+        fetchUserBudgets();
       } else {
         throw new Error("Budget creation returned undefined.");
       }
@@ -123,13 +127,15 @@ export default function BudgetsPage() {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not create budget." });
     } finally {
       setIsMutating(false);
-      setIsCreateDialogOpen(false); 
+      setIsCreating(false);
+      setIsCreateDialogOpen(false);
     }
   };
 
   const handleUpdateBudget = async (updatedBudgetData: Omit<Budget, 'id' | 'spent' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     if (!editingBudget || !user) return;
     setIsMutating(true);
+    setOperationTargetId(editingBudget.id);
     try {
       await updateBudgetAction(editingBudget.id, updatedBudgetData);
       toast({ title: "Budget Updated", description: "Your budget has been updated." });
@@ -139,14 +145,16 @@ export default function BudgetsPage() {
     } finally {
       setEditingBudget(null);
       setIsMutating(false);
-      setIsCreateDialogOpen(false); 
+      setOperationTargetId(null);
+      setIsCreateDialogOpen(false);
     }
   };
 
   const handleDeleteBudget = async (budgetId: string) => {
     if(!user) return;
+    setIsMutating(true);
     setDeletingItemId(budgetId);
-    setIsMutating(true); 
+    setOperationTargetId(budgetId);
     try {
       await deleteBudgetAction(budgetId);
       toast({ title: "Budget Deleted", description: "Your budget has been removed." });
@@ -156,12 +164,13 @@ export default function BudgetsPage() {
     } finally {
       setIsMutating(false);
       setDeletingItemId(null);
+      setOperationTargetId(null);
     }
   };
 
   const pageIsLoading = authLoading || isLoadingData;
 
-  if (pageIsLoading && !budgets.length) {
+  if (pageIsLoading && !budgets.length && !user) { // Adjusted condition for initial load
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -169,18 +178,23 @@ export default function BudgetsPage() {
     );
   }
 
+
   return (
     <div className="space-y-8">
       <PageHeader
         title="Budgets"
         description="Create and manage your spending budgets."
         actions={
-          <Button onClick={handleOpenCreateDialog} disabled={(isMutating && !editingBudget && !deletingItemId) || (authLoading && !user)}>
-            {(isMutating && !editingBudget && !deletingItemId) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+          <Button onClick={handleOpenCreateDialog} disabled={isCreating || (isMutating && !operationTargetId) || (authLoading && !user) }>
+            {(isCreating || (isMutating && !editingBudget && !deletingItemId)) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
              Create Budget
           </Button>
         }
       />
+
+      <div className="p-4 border rounded-md bg-muted/30 text-sm text-muted-foreground">
+        <p><strong>Note:</strong> The 'Spent' amount for budgets reflects direct input or defaults to zero upon creation. Dynamic calculation based on your actual transactions is a feature planned for an upcoming update. For now, you can manually update the 'Spent' field when editing a budget if needed.</p>
+      </div>
 
       {budgets.length === 0 && !pageIsLoading ? (
         <ScrollFadeIn>
@@ -196,8 +210,8 @@ export default function BudgetsPage() {
             const progress = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
             const isOverspent = budget.spent > budget.amount;
             const period = formattedPeriods[budget.id] || "Loading period...";
-            const isCurrentBudgetMutating = isMutating && (editingBudget?.id === budget.id || deletingItemId === budget.id);
-            
+            const isCurrentBudgetMutating = isMutating && operationTargetId === budget.id;
+
             return (
               <ScrollFadeIn key={budget.id}>
                 <Card className="flex flex-col h-full">
@@ -207,16 +221,15 @@ export default function BudgetsPage() {
                         <CardTitle className="text-xl">{budget.name}</CardTitle>
                          <CardDescription className="space-y-1">
                             <span>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></span>
-                             <p className="text-xs text-muted-foreground pt-1">Note: Spent amount reflects direct input. Dynamic calculation from transactions is upcoming.</p>
                         </CardDescription>
                       </div>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleOpenEditDialog(budget)} disabled={isCurrentBudgetMutating || isMutating && !isCurrentBudgetMutating}>
-                            {(isMutating && editingBudget?.id === budget.id) ? <Loader2 className="h-4 w-4 animate-spin"/> : <Edit2 className="h-4 w-4" /> }
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleOpenEditDialog(budget)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating)}>
+                            {(isCurrentBudgetMutating && editingBudget?.id === budget.id) ? <Loader2 className="h-4 w-4 animate-spin"/> : <Edit2 className="h-4 w-4" /> }
                             <span className="sr-only">Edit</span>
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleAttemptDelete(budget.id)} disabled={isCurrentBudgetMutating || isMutating && !isCurrentBudgetMutating}>
-                            {deletingItemId === budget.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleAttemptDelete(budget.id)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating) }>
+                            {(isCurrentBudgetMutating && deletingItemId === budget.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             <span className="sr-only">Delete</span>
                           </Button>
                         </div>
@@ -253,7 +266,7 @@ export default function BudgetsPage() {
           onOpenChange={setIsCreateDialogOpen}
           onBudgetSaved={editingBudget ? handleUpdateBudget : handleAddBudget}
           existingBudget={editingBudget ?? undefined}
-          isSubmitting={isMutating && (editingBudget ? editingBudget.id === editingBudget?.id : (!editingBudget && !deletingItemId)) }
+          isSubmitting={ (isCreating && !editingBudget) || (isMutating && operationTargetId === editingBudget?.id && !!editingBudget) }
       />
     </div>
   );
