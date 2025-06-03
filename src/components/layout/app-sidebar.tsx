@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard, UserCircle, LogIn } from 'lucide-react'; // LogIn can still be used as an icon
+import { Home, ListChecks, FileInput, PieChart, Target, Brain, Settings, LogOut, CreditCard, UserCircle, LogIn, UserCog } from 'lucide-react'; // Added UserCog for Profile
 import { useAuth } from '@/contexts/auth-context';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -38,7 +38,7 @@ export function AppSidebar() {
     try {
       await signOut(auth);
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
-      router.push('/auth'); // Redirect to the new auth page after logout
+      router.push('/auth'); 
     } catch (error) {
       console.error("Logout error:", error);
       toast({ variant: "destructive", title: "Logout Failed", description: "Could not log out. Please try again." });
@@ -84,6 +84,22 @@ export function AppSidebar() {
         <SidebarMenu>
           {!loading && (
             <>
+               {user && (
+                 <SidebarMenuItem>
+                    <Link href="/profile" passHref legacyBehavior>
+                        <SidebarMenuButton
+                            asChild
+                            isActive={pathname === "/profile"}
+                            tooltip={{children: "My Profile", side: "right", align: "center"}}
+                        >
+                        <a>
+                            <UserCog />
+                            <span>My Profile</span>
+                        </a>
+                        </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+               )}
               <SidebarMenuItem>
                  <Link href="/settings" passHref legacyBehavior>
                     <SidebarMenuButton
@@ -101,9 +117,9 @@ export function AppSidebar() {
               {user ? (
                 <>
                   <SidebarMenuItem>
-                    <SidebarMenuButton tooltip={{children: user.email || "User Profile", side: "right", align: "center"}} className="cursor-default hover:bg-transparent">
+                    <SidebarMenuButton tooltip={{children: user.email || "User Profile Info", side: "right", align: "center"}} className="cursor-default hover:bg-transparent">
                       <UserCircle />
-                      <span>{user.email}</span>
+                      <span>{user.email ? (user.email.length > 18 ? user.email.substring(0,15) + "..." : user.email) : "User"}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>

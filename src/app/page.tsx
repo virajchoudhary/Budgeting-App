@@ -17,6 +17,7 @@ import { getTransactions } from '@/actions/transactions';
 import { getBudgets } from '@/actions/budgets';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns'; // For budget calculation
 
 interface CategorySpending {
   name: string;
@@ -25,16 +26,16 @@ interface CategorySpending {
 }
 
 const DASHBOARD_BUDGET_LIMIT = 3;
-const DASHBOARD_TRANSACTION_LIMIT = 5; // For display, full list needed for calculation
+const DASHBOARD_TRANSACTION_LIMIT = 5;
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [recentTransactionsList, setRecentTransactionsList] = useState<Transaction[]>([]);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [allUserTransactions, setAllUserTransactions] = useState<Transaction[]>([]); // Stores all transactions for calculations
+  const [recentTransactionsList, setRecentTransactionsList] = useState<Transaction[]>([]); // For display
+  const [dashboardBudgets, setDashboardBudgets] = useState<Budget[]>([]); // Budgets with calculated spent
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
@@ -42,12 +43,12 @@ export default function DashboardPage() {
 
   const [isLoadingData, setIsLoadingData] = useState(true);
 
-  const calculateSummary = (dataToProcess: Transaction[]) => {
+  const calculateSummariesAndBudgets = useCallback((transactionsToProcess: Transaction[], budgetsToProcess: Budget[]) => {
     let income = 0;
     let expenses = 0;
     const spendingByCat: Record<string, number> = {};
 
-    dataToProcess.forEach(t => {
+    transactionsToProcess.forEach(t => {
       if (t.type === 'income') {
         income += t.amount;
       } else {
@@ -59,53 +60,77 @@ export default function DashboardPage() {
     });
     setTotalIncome(income);
     setTotalExpenses(expenses);
-    // Sort transactions by date (desc) before slicing for recent list
-    const sortedTransactions = [...dataToProcess].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const sortedTransactions = [...transactionsToProcess].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setRecentTransactionsList(sortedTransactions.slice(0, DASHBOARD_TRANSACTION_LIMIT));
 
-
     const formattedSpendingData = Object.entries(spendingByCat)
-      .map(([name, value]) => ({ name, value, fill: '' })) // Colors are assigned in the chart component
+      .map(([name, value]) => ({ name, value, fill: '' }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 6); // Show top 6 categories in chart
+      .slice(0, 6);
     setCategorySpending(formattedSpendingData);
-  };
+
+    // Calculate spent for dashboard budgets
+    const calculatedDashboardBudgets = budgetsToProcess.map(budget => {
+        let spent = 0;
+        const budgetStartDate = startOfDay(parseISO(budget.startDate));
+        const budgetEndDate = endOfDay(parseISO(budget.endDate));
+
+        transactionsToProcess.forEach(transaction => {
+            const transactionDate = parseISO(transaction.date);
+            if (
+                transaction.type === 'expense' &&
+                (budget.category === 'Overall' || transaction.category === budget.category) &&
+                isWithinInterval(transactionDate, { start: budgetStartDate, end: budgetEndDate })
+            ) {
+                spent += Math.abs(transaction.amount);
+            }
+        });
+        return { ...budget, spent };
+    });
+    setDashboardBudgets(calculatedDashboardBudgets);
+
+  }, []);
+
 
   const fetchDashboardData = useCallback(async () => {
     setIsLoadingData(true);
     if (!user) {
-      setTransactions(mockTransactions);
-      calculateSummary(mockTransactions);
-      setBudgets(mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
+      const mockCalculatedBudgets = mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT).map(b => {
+        const spent = mockTransactions.filter(t => t.category === b.category && t.type === 'expense' && isWithinInterval(parseISO(t.date), {start: parseISO(b.startDate), end: parseISO(b.endDate)})).reduce((acc, curr) => acc + Math.abs(curr.amount),0)
+        return {...b, spent}
+      })
+      setAllUserTransactions(mockTransactions);
+      calculateSummariesAndBudgets(mockTransactions, mockCalculatedBudgets);
+      // setDashboardBudgets remains handled by calculateSummariesAndBudgets
       setIsLoadingData(false);
       return;
     }
 
     try {
-      // Fetch all transactions for accurate summary calculations
-      // Fetch limited budgets for dashboard overview
-      const [userTransactions, userBudgets] = await Promise.all([
-        getTransactions(), // Fetches all transactions for calculations
-        getBudgets(DASHBOARD_BUDGET_LIMIT) // Fetches limited budgets for overview
+      const [userTransactions, userLimitedBudgets] = await Promise.all([
+        getTransactions(), // Fetches all transactions
+        getBudgets(DASHBOARD_BUDGET_LIMIT)
       ]);
 
-      setTransactions(userTransactions);
-      calculateSummary(userTransactions); // Calculates summary from ALL transactions
-      
-      // Use fetched (limited) budgets or mock if user has none
-      setBudgets(userBudgets.length > 0 ? userBudgets : mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
+      setAllUserTransactions(userTransactions);
+      // Use fetched (limited) budgets or mock if user has none, then calculate
+      const budgetsForCalc = userLimitedBudgets.length > 0 ? userLimitedBudgets : mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT);
+      calculateSummariesAndBudgets(userTransactions, budgetsForCalc);
 
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not load dashboard data." });
-      // Fallback to mock data on error
-      setTransactions(mockTransactions);
-      calculateSummary(mockTransactions);
-      setBudgets(mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
+      const mockCalculatedBudgets = mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT).map(b => {
+        const spent = mockTransactions.filter(t => t.category === b.category && t.type === 'expense' && isWithinInterval(parseISO(t.date), {start: parseISO(b.startDate), end: parseISO(b.endDate)})).reduce((acc, curr) => acc + Math.abs(curr.amount),0)
+        return {...b, spent}
+      })
+      setAllUserTransactions(mockTransactions);
+      calculateSummariesAndBudgets(mockTransactions, mockCalculatedBudgets);
     } finally {
       setIsLoadingData(false);
     }
-  }, [user, toast]);
+  }, [user, toast, calculateSummariesAndBudgets]);
 
 
   useEffect(() => {
@@ -145,23 +170,22 @@ export default function DashboardPage() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div> {/* Outer container for PageHeader and scrollable content */}
+    <div>
       <PageHeader
         title="Home"
         description="Your financial snapshot at a glance."
         actions={
-            <div className="flex gap-3">
-              <Button onClick={handleAddTransactionClick}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction
-              </Button>
-              <Button variant="outline" onClick={handleImportClick}>
-                <Upload className="mr-2 h-4 w-4" /> Import
-              </Button>
-            </div>
+          <div className="flex gap-3">
+            <Button onClick={handleAddTransactionClick}>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Transaction
+            </Button>
+            <Button variant="outline" onClick={handleImportClick}>
+              <Upload className="mr-2 h-4 w-4" /> Import
+            </Button>
+          </div>
         }
       />
 
-      {/* Scroll-snap container for dashboard sections */}
       <div
         className="scroll-smooth"
         style={{
@@ -172,7 +196,6 @@ export default function DashboardPage() {
         }}
       >
 
-        {/* Section 1: Summary Cards */}
         <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '40vh' }}>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <ScrollFadeIn>
@@ -187,7 +210,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Section 2: Recent Transactions & Spending Chart */}
         <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '65vh' }}>
           <div className="grid gap-6 lg:grid-cols-2">
             <ScrollFadeIn>
@@ -199,17 +221,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Section 3: Budget Overview */}
         <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '55vh' }}>
           <div className="grid gap-6 lg:grid-cols-1">
             <ScrollFadeIn>
-               <BudgetOverview budgets={budgets} />
+              <BudgetOverview budgets={dashboardBudgets} />
             </ScrollFadeIn>
           </div>
         </div>
 
-      </div> {/* End of scroll-snap container */}
+      </div>
     </div>
   );
 }
-

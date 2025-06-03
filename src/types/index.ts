@@ -1,4 +1,5 @@
 
+
 export interface Transaction {
   id: string;
   userId: string; // Added for Firestore user association
@@ -12,11 +13,11 @@ export interface Transaction {
 
 export interface Budget {
   id: string;
-  userId: string; 
+  userId: string;
   name: string;
   category: string; // Can be 'Overall' or a specific category
   amount: number; // Total budget amount
-  spent: number; // Initially 0, direct input for now
+  spent: number; // This will represent the calculated spent amount in the UI
   startDate: string; // ISO string
   endDate: string; // ISO string
   createdAt?: string; // ISO string, from Firestore serverTimestamp
@@ -69,3 +70,4 @@ export const supportedCurrencies: { value: Currency; label: string }[] = [
   { value: 'EUR', label: 'EUR - Euro' },
 ];
 
+export type Theme = 'light' | 'dark' | 'system';

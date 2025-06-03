@@ -1,0 +1,51 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user owns the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Transactions: Users can only CRUD their own transactions.
+    match /transactions/{transactionId} {
+      allow read, update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+    }
+
+    // Budgets: Users can only CRUD their own budgets.
+    match /budgets/{budgetId} {
+      allow read, update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+    }
+
+    // SavingsGoals: Users can only CRUD their own savings goals.
+    match /savingsGoals/{goalId} {
+      allow read, update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+    }
+
+    // Allow list operations if user is authenticated.
+    // Server actions MUST ensure queries filter by userId.
+    // This is a common pattern, but for stricter list control, you might explore
+    // collection group queries with more specific rules if your data structure allows,
+    // or use Firebase Functions as intermediaries.
+    // For now, this relies on the server actions correctly filtering.
+    match /transactions/{document=**} {
+      allow list: if isAuthenticated();
+    }
+    match /budgets/{document=**} {
+      allow list: if isAuthenticated();
+    }
+    match /savingsGoals/{document=**} {
+      allow list: if isAuthenticated();
+    }
+  }
+}

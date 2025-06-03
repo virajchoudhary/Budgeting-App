@@ -12,6 +12,9 @@ const getCurrentUserId = (): string | null => {
   return user ? user.uid : null;
 };
 
+// Note: The 'spent' field in the Budget type now represents the client-calculated spent amount.
+// When adding a budget, 'spent' is initialized to 0 as a placeholder or if needed for Firestore structure,
+// but its primary source of truth for display will be client-side calculations.
 export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spent' | 'createdAt' | 'updatedAt'>) {
   const userId = getCurrentUserId();
   if (!userId) {
@@ -21,7 +24,7 @@ export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spen
   const newBudget = {
     ...budgetData,
     userId,
-    spent: 0, // Initialize spent to 0
+    spent: 0, // Initialize spent to 0; actual spent amount will be calculated client-side
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     startDate: Timestamp.fromDate(new Date(budgetData.startDate)),
@@ -36,7 +39,7 @@ export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spen
       id: docRef.id,
       ...budgetData, // Return the original data shape for dates
       userId,
-      spent: 0,
+      spent: 0, // UI will calculate this
       createdAt: new Date().toISOString(), // Approximate client-side representation
       updatedAt: new Date().toISOString(), // Approximate client-side representation
     } as Budget;
@@ -56,7 +59,7 @@ export async function getBudgets(fetchLimit?: number): Promise<Budget[]> {
     const budgetsCollection = collection(db, 'budgets');
     const queryConstraints: any[] = [
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc') // Order by creation date or another relevant field
+        orderBy('createdAt', 'desc')
     ];
 
     if (fetchLimit && fetchLimit > 0) {
@@ -70,6 +73,8 @@ export async function getBudgets(fetchLimit?: number): Promise<Budget[]> {
       return {
         id: docSnap.id,
         ...data,
+        // 'spent' field will be populated/overridden by client-side calculations based on transactions
+        spent: data.spent || 0, // Use Firestore 'spent' as a fallback/initial value if needed
         startDate: (data.startDate as Timestamp).toDate().toISOString(),
         endDate: (data.endDate as Timestamp).toDate().toISOString(),
         createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate().toISOString() : undefined,
@@ -83,7 +88,9 @@ export async function getBudgets(fetchLimit?: number): Promise<Budget[]> {
   }
 }
 
-export async function updateBudget(budgetId: string, updatedData: Partial<Omit<Budget, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>) {
+// Updated to exclude 'spent' from direct updates via this action.
+// 'spent' is now primarily a calculated value on the client.
+export async function updateBudget(budgetId: string, updatedData: Partial<Omit<Budget, 'id' | 'userId' | 'spent' | 'createdAt' | 'updatedAt'>>) {
   const userId = getCurrentUserId();
   if (!userId) {
     throw new Error('User not authenticated');
@@ -91,22 +98,19 @@ export async function updateBudget(budgetId: string, updatedData: Partial<Omit<B
 
   const budgetDocRef = doc(db, 'budgets', budgetId);
 
-  // Prepare data, ensuring serverTimestamp for updatedAt
   const dataToUpdate: any = { ...updatedData, updatedAt: serverTimestamp() };
 
-  // Convert date strings to Timestamps if they exist in updatedData
   if (updatedData.startDate && typeof updatedData.startDate === 'string') {
     dataToUpdate.startDate = Timestamp.fromDate(new Date(updatedData.startDate));
-  } else if (updatedData.startDate instanceof Date) { // Handle if Date object is passed
+  } else if (updatedData.startDate instanceof Date) {
      dataToUpdate.startDate = Timestamp.fromDate(updatedData.startDate);
   }
 
   if (updatedData.endDate && typeof updatedData.endDate === 'string') {
     dataToUpdate.endDate = Timestamp.fromDate(new Date(updatedData.endDate));
-  } else if (updatedData.endDate instanceof Date) { // Handle if Date object is passed
+  } else if (updatedData.endDate instanceof Date) {
     dataToUpdate.endDate = Timestamp.fromDate(updatedData.endDate);
   }
-  // 'spent' field can be updated directly if provided in updatedData
 
   try {
     await updateDoc(budgetDocRef, dataToUpdate);
@@ -135,4 +139,3 @@ export async function deleteBudget(budgetId: string) {
     throw new Error('Failed to delete budget.');
   }
 }
-

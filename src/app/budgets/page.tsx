@@ -8,15 +8,16 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit2, Trash2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import type { Budget } from '@/types';
-import { mockBudgets } from '@/lib/mock-data';
+import type { Budget, Transaction } from '@/types'; // Added Transaction
+import { mockBudgets, mockTransactions } from '@/lib/mock-data'; // Added mockTransactions
 import { CreateBudgetDialog } from '@/components/budgets/create-budget-dialog';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { useSettings } from '@/contexts/settings-context';
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
 import { useAuth } from '@/contexts/auth-context';
 import { getBudgets, addBudget as addBudgetAction, updateBudget as updateBudgetAction, deleteBudget as deleteBudgetAction } from '@/actions/budgets';
+import { getTransactions } from '@/actions/transactions'; // Added getTransactions
 import { useToast } from '@/hooks/use-toast';
 
 export default function BudgetsPage() {
@@ -26,45 +27,77 @@ export default function BudgetsPage() {
   const router = useRouter();
 
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // State for transactions
+  const [budgetsWithCalculatedSpent, setBudgetsWithCalculatedSpent] = useState<Budget[]>([]);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isMutating, setIsMutating] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  const [operationTargetId, setOperationTargetId] = useState<string | null>(null); 
-  const [isCreating, setIsCreating] = useState(false); 
+  const [operationTargetId, setOperationTargetId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
-  const fetchUserBudgets = useCallback(async () => {
+  const fetchBudgetsAndTransactions = useCallback(async () => {
     if (!user && !authLoading) {
       setBudgets(mockBudgets);
+      setTransactions(mockTransactions);
       setIsLoadingData(false);
       return;
     }
     if (!user && authLoading) {
-        setIsLoadingData(true);
-        return;
+      setIsLoadingData(true);
+      return;
     }
     setIsLoadingData(true);
     try {
-      const userBudgets = await getBudgets();
+      const [userBudgets, userTransactions] = await Promise.all([
+        getBudgets(),
+        getTransactions()
+      ]);
       setBudgets(userBudgets);
+      setTransactions(userTransactions);
     } catch (error) {
-      console.error("Failed to fetch budgets:", error);
-      toast({ variant: "destructive", title: "Error", description: "Could not fetch budgets." });
-      setBudgets(mockBudgets);
+      console.error("Failed to fetch data:", error);
+      toast({ variant: "destructive", title: "Error", description: "Could not fetch budget or transaction data." });
+      setBudgets(mockBudgets); // Fallback
+      setTransactions(mockTransactions); // Fallback
     } finally {
       setIsLoadingData(false);
     }
   }, [user, authLoading, toast]);
 
   useEffect(() => {
-    fetchUserBudgets();
-  }, [fetchUserBudgets]);
+    fetchBudgetsAndTransactions();
+  }, [fetchBudgetsAndTransactions]);
+
+  useEffect(() => {
+    if (budgets.length > 0 || transactions.length > 0 || !user) { // Recalculate if budgets/transactions change or if using mock data
+        const calculatedBudgets = budgets.map(budget => {
+            let spent = 0;
+            const budgetStartDate = startOfDay(parseISO(budget.startDate));
+            const budgetEndDate = endOfDay(parseISO(budget.endDate));
+
+            transactions.forEach(transaction => {
+                const transactionDate = parseISO(transaction.date);
+                if (
+                    transaction.type === 'expense' &&
+                    (budget.category === 'Overall' || transaction.category === budget.category) &&
+                    isWithinInterval(transactionDate, { start: budgetStartDate, end: budgetEndDate })
+                ) {
+                    spent += Math.abs(transaction.amount);
+                }
+            });
+            return { ...budget, spent };
+        });
+        setBudgetsWithCalculatedSpent(calculatedBudgets);
+    }
+  }, [budgets, transactions, user]); // Added user to dependencies
 
   const [formattedPeriods, setFormattedPeriods] = useState<Record<string, string>>({});
-   useEffect(() => {
+  useEffect(() => {
     const newFormattedPeriods: Record<string, string> = {};
-    budgets.forEach(budget => {
+    (budgetsWithCalculatedSpent.length > 0 ? budgetsWithCalculatedSpent : budgets).forEach(budget => { // Use calculated if available
       try {
         const startDate = new Date(budget.startDate);
         const endDate = new Date(budget.endDate);
@@ -79,7 +112,7 @@ export default function BudgetsPage() {
       }
     });
     setFormattedPeriods(newFormattedPeriods);
-  }, [budgets]);
+  }, [budgetsWithCalculatedSpent, budgets]);
 
 
   const handleOpenCreateDialog = () => {
@@ -112,14 +145,14 @@ export default function BudgetsPage() {
   };
 
   const handleAddBudget = async (newBudgetData: Omit<Budget, 'id' | 'spent' | 'userId' | 'createdAt' | 'updatedAt'>) => {
-    if(!user) return;
+    if (!user) return;
     setIsMutating(true);
     setIsCreating(true);
     try {
       const createdBudget = await addBudgetAction(newBudgetData);
       if (createdBudget) {
         toast({ title: "Budget Created", description: "Your new budget has been saved." });
-        fetchUserBudgets();
+        fetchBudgetsAndTransactions(); // Re-fetch both
       } else {
         throw new Error("Budget creation returned undefined.");
       }
@@ -137,10 +170,11 @@ export default function BudgetsPage() {
     setIsMutating(true);
     setOperationTargetId(editingBudget.id);
     try {
+      // 'spent' is not passed here, as it's calculated client-side
       await updateBudgetAction(editingBudget.id, updatedBudgetData);
       toast({ title: "Budget Updated", description: "Your budget has been updated." });
-      fetchUserBudgets();
-    } catch (error: any) {
+      fetchBudgetsAndTransactions(); // Re-fetch both
+    } catch (error: any)      {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not update budget." });
     } finally {
       setEditingBudget(null);
@@ -151,14 +185,14 @@ export default function BudgetsPage() {
   };
 
   const handleDeleteBudget = async (budgetId: string) => {
-    if(!user) return;
+    if (!user) return;
     setIsMutating(true);
     setDeletingItemId(budgetId);
     setOperationTargetId(budgetId);
     try {
       await deleteBudgetAction(budgetId);
       toast({ title: "Budget Deleted", description: "Your budget has been removed." });
-      fetchUserBudgets();
+      fetchBudgetsAndTransactions(); // Re-fetch both
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message || "Could not delete budget." });
     } finally {
@@ -169,8 +203,10 @@ export default function BudgetsPage() {
   };
 
   const pageIsLoading = authLoading || isLoadingData;
+  const displayBudgets = budgetsWithCalculatedSpent.length > 0 ? budgetsWithCalculatedSpent : (user ? [] : mockBudgets.map(b => ({...b, spent: mockTransactions.filter(t => t.category === b.category && t.type === 'expense' && isWithinInterval(parseISO(t.date), {start: parseISO(b.startDate), end: parseISO(b.endDate)})).reduce((acc, curr) => acc + Math.abs(curr.amount),0)})));
 
-  if (pageIsLoading && !budgets.length && !user) { 
+
+  if (pageIsLoading && displayBudgets.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -178,25 +214,24 @@ export default function BudgetsPage() {
     );
   }
 
-
   return (
     <div className="space-y-8">
       <PageHeader
         title="Budgets"
         description="Create and manage your spending budgets."
         actions={
-          <Button onClick={handleOpenCreateDialog} disabled={isCreating || (isMutating && !operationTargetId) || (authLoading && !user) }>
+          <Button onClick={handleOpenCreateDialog} disabled={isCreating || (isMutating && !operationTargetId) || (authLoading && !user)}>
             {(isCreating || (isMutating && !editingBudget && !deletingItemId)) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-             Create Budget
+            Create Budget
           </Button>
         }
       />
 
       <div className="p-4 border rounded-md bg-muted/30 text-sm text-muted-foreground">
-        <p><strong>Note:</strong> The 'Spent' amount for budgets reflects direct input or defaults to zero upon creation. Dynamic calculation based on your actual transactions is a feature planned for an upcoming update. For now, you can manually update the 'Spent' field when editing a budget if needed.</p>
+        <p><strong>Note:</strong> The 'Spent' amount for budgets is now dynamically calculated based on your transactions matching the budget's category and period. The 'Overall' category, if used for a budget, will sum up all expenses within the period.</p>
       </div>
 
-      {budgets.length === 0 && !pageIsLoading ? (
+      {displayBudgets.length === 0 && !pageIsLoading ? (
         <ScrollFadeIn>
           <Card>
             <CardContent className="p-6 text-center text-muted-foreground">
@@ -206,7 +241,7 @@ export default function BudgetsPage() {
         </ScrollFadeIn>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {budgets.map((budget) => {
+          {displayBudgets.map((budget) => {
             const progress = budget.amount > 0 ? Math.min((budget.spent / budget.amount) * 100, 100) : 0;
             const isOverspent = budget.spent > budget.amount;
             const period = formattedPeriods[budget.id] || "Loading period...";
@@ -219,20 +254,20 @@ export default function BudgetsPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="text-xl">{budget.name}</CardTitle>
-                         <CardDescription className="space-y-1">
-                            <span>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></span>
+                        <CardDescription className="space-y-1">
+                          <span>For <Badge variant="outline" className="mt-1">{budget.category}</Badge></span>
                         </CardDescription>
                       </div>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleOpenEditDialog(budget)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating)}>
-                            {(isCurrentBudgetMutating && editingBudget?.id === budget.id) ? <Loader2 className="h-4 w-4 animate-spin"/> : <Edit2 className="h-4 w-4" /> }
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleAttemptDelete(budget.id)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating) }>
-                            {(isCurrentBudgetMutating && deletingItemId === budget.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </div>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleOpenEditDialog(budget)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating)}>
+                          {(isCurrentBudgetMutating && editingBudget?.id === budget.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Edit2 className="h-4 w-4" />}
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-accent" onClick={() => handleAttemptDelete(budget.id)} disabled={isCurrentBudgetMutating || (isMutating && !isCurrentBudgetMutating && !isCreating)}>
+                          {(isCurrentBudgetMutating && deletingItemId === budget.id) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="flex-grow">
@@ -262,13 +297,12 @@ export default function BudgetsPage() {
       )}
 
       <CreateBudgetDialog
-          isOpen={isCreateDialogOpen}
-          onOpenChange={setIsCreateDialogOpen}
-          onBudgetSaved={editingBudget ? handleUpdateBudget : handleAddBudget}
-          existingBudget={editingBudget ?? undefined}
-          isSubmitting={ (isCreating && !editingBudget) || (isMutating && operationTargetId === editingBudget?.id && !!editingBudget) }
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onBudgetSaved={editingBudget ? handleUpdateBudget : handleAddBudget}
+        existingBudget={editingBudget ?? undefined}
+        isSubmitting={(isCreating && !editingBudget) || (isMutating && operationTargetId === editingBudget?.id && !!editingBudget)}
       />
     </div>
   );
 }
-

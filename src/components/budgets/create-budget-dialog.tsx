@@ -20,13 +20,13 @@ import { format, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Budget, TransactionCategory } from '@/types';
-import { transactionCategories } from '@/types'; 
+import { transactionCategories } from '@/types';
 
 interface CreateBudgetDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onBudgetSaved: (budget: Omit<Budget, 'id' | 'spent' | 'userId'>) => void;
-  existingBudget?: Budget;
+  onBudgetSaved: (budget: Omit<Budget, 'id' | 'spent' | 'userId' | 'createdAt' | 'updatedAt'>) => void;
+  existingBudget?: Budget; // Pass the full budget if editing, 'spent' will be ignored for form but used for initial state if needed
   isSubmitting?: boolean;
 }
 
@@ -41,7 +41,7 @@ export function CreateBudgetDialog({ isOpen, onOpenChange, onBudgetSaved, existi
     if (existingBudget) {
       setName(existingBudget.name);
       setAmount(String(existingBudget.amount));
-      setCategory(existingBudget.category as TransactionCategory); // Assuming category is valid
+      setCategory(existingBudget.category as TransactionCategory);
       setStartDate(new Date(existingBudget.startDate));
       setEndDate(new Date(existingBudget.endDate));
     } else {
@@ -57,10 +57,10 @@ export function CreateBudgetDialog({ isOpen, onOpenChange, onBudgetSaved, existi
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
      if (!name || !amount || !category || !startDate || !endDate) {
-      // Basic validation, consider using react-hook-form for robust validation
       alert("Please fill all fields.");
       return;
     }
+    // 'spent' is no longer part of the form submission here, it will be calculated
     onBudgetSaved({
       name,
       amount: parseFloat(amount),
@@ -68,13 +68,12 @@ export function CreateBudgetDialog({ isOpen, onOpenChange, onBudgetSaved, existi
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
     });
-    if (!isSubmitting) { // Only close if not actively submitting (success will re-fetch and close via onOpenChange typically)
+    if (!isSubmitting) {
         onOpenChange(false);
     }
   };
-  
-  const budgetCategories = transactionCategories.filter(cat => cat !== 'Income' && cat !== 'Uncategorized');
 
+  const budgetCategories = transactionCategories.filter(cat => cat !== 'Income' && cat !== 'Uncategorized');
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !isSubmitting && onOpenChange(open)}>
@@ -82,7 +81,7 @@ export function CreateBudgetDialog({ isOpen, onOpenChange, onBudgetSaved, existi
         <DialogHeader>
           <DialogTitle>{existingBudget ? 'Edit Budget' : 'Create New Budget'}</DialogTitle>
           <DialogDescription>
-            Set up a budget to track your spending in a specific category. Spent amount will be calculated from transactions.
+            Set up a budget to track your spending. The 'spent' amount will be dynamically calculated from your transactions.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -104,7 +103,7 @@ export function CreateBudgetDialog({ isOpen, onOpenChange, onBudgetSaved, existi
                 {budgetCategories.map(cat => (
                   <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                 ))}
-                 <SelectItem value="Overall">Overall</SelectItem> 
+                 <SelectItem value="Overall">Overall</SelectItem>
               </SelectContent>
             </Select>
           </div>
