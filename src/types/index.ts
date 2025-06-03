@@ -70,4 +70,4 @@ export const supportedCurrencies: { value: Currency; label: string }[] = [
   { value: 'EUR', label: 'EUR - Euro' },
 ];
 
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme = 'light' | 'dark';

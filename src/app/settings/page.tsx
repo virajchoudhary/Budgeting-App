@@ -9,8 +9,8 @@ import { useSettings } from '@/contexts/settings-context';
 import type { Currency, Theme } from '@/types';
 import { supportedCurrencies } from '@/types';
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
-import { useTheme } from '@/contexts/theme-provider'; // Import useTheme
-import { Moon, Sun, Laptop } from 'lucide-react'; // Icons for theme toggle
+import { useTheme } from '@/contexts/theme-provider';
+import { Moon, Sun } from 'lucide-react'; // Removed Laptop icon
 import { Button } from '@/components/ui/button';
 
 export default function SettingsPage() {
@@ -27,7 +27,7 @@ export default function SettingsPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle>Application Settings</CardTitle>
-            <CardDescription>Adjust your preferences for Kamski.</CardDescription> {/* Updated "Synapse Finance" to "Kamski" */}
+            <CardDescription>Adjust your preferences for Kamski.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -60,9 +60,6 @@ export default function SettingsPage() {
                 </Button>
                 <Button variant={theme === 'dark' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('dark')}>
                   <Moon className="mr-2 h-4 w-4" /> Dark
-                </Button>
-                <Button variant={theme === 'system' ? 'default' : 'outline'} size="sm" onClick={() => setTheme('system')}>
-                  <Laptop className="mr-2 h-4 w-4" /> System
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
