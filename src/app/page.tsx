@@ -11,7 +11,6 @@ import { BudgetOverview } from '@/components/dashboard/budget-overview';
 import { SpendingCategoryChart } from '@/components/dashboard/spending-category-chart';
 import type { Transaction, Budget } from '@/types';
 import { mockBudgets, mockTransactions } from '@/lib/mock-data';
-import Link from 'next/link';
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
 import { useAuth } from '@/contexts/auth-context';
 import { getTransactions } from '@/actions/transactions';
@@ -25,19 +24,22 @@ interface CategorySpending {
   fill: string;
 }
 
+const DASHBOARD_BUDGET_LIMIT = 3;
+const DASHBOARD_TRANSACTION_LIMIT = 5; // For display, full list needed for calculation
+
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
-  
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [recentTransactionsList, setRecentTransactionsList] = useState<Transaction[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
-  
+
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [categorySpending, setCategorySpending] = useState<CategorySpending[]>([]);
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const calculateSummary = (dataToProcess: Transaction[]) => {
@@ -57,12 +59,15 @@ export default function DashboardPage() {
     });
     setTotalIncome(income);
     setTotalExpenses(expenses);
-    setRecentTransactionsList(dataToProcess.slice(0, 5));
+    // Sort transactions by date (desc) before slicing for recent list
+    const sortedTransactions = [...dataToProcess].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    setRecentTransactionsList(sortedTransactions.slice(0, DASHBOARD_TRANSACTION_LIMIT));
+
 
     const formattedSpendingData = Object.entries(spendingByCat)
-      .map(([name, value]) => ({ name, value, fill: '' }))
+      .map(([name, value]) => ({ name, value, fill: '' })) // Colors are assigned in the chart component
       .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
+      .slice(0, 6); // Show top 6 categories in chart
     setCategorySpending(formattedSpendingData);
   };
 
@@ -71,27 +76,32 @@ export default function DashboardPage() {
     if (!user) {
       setTransactions(mockTransactions);
       calculateSummary(mockTransactions);
-      setBudgets(mockBudgets.slice(0, 3));
+      setBudgets(mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
       setIsLoadingData(false);
       return;
     }
 
     try {
+      // Fetch all transactions for accurate summary calculations
+      // Fetch limited budgets for dashboard overview
       const [userTransactions, userBudgets] = await Promise.all([
-        getTransactions(),
-        getBudgets()
+        getTransactions(), // Fetches all transactions for calculations
+        getBudgets(DASHBOARD_BUDGET_LIMIT) // Fetches limited budgets for overview
       ]);
-      
+
       setTransactions(userTransactions);
-      calculateSummary(userTransactions);
-      setBudgets(userBudgets.length > 0 ? userBudgets.slice(0,3) : mockBudgets.slice(0,3));
+      calculateSummary(userTransactions); // Calculates summary from ALL transactions
+      
+      // Use fetched (limited) budgets or mock if user has none
+      setBudgets(userBudgets.length > 0 ? userBudgets : mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
 
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
       toast({ variant: "destructive", title: "Error", description: "Could not load dashboard data." });
+      // Fallback to mock data on error
       setTransactions(mockTransactions);
       calculateSummary(mockTransactions);
-      setBudgets(mockBudgets.slice(0, 3));
+      setBudgets(mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT));
     } finally {
       setIsLoadingData(false);
     }
@@ -103,11 +113,11 @@ export default function DashboardPage() {
       fetchDashboardData();
     }
   }, [authLoading, fetchDashboardData]);
-  
+
   const handleAddTransactionClick = () => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to add a transaction." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     router.push('/transactions#add');
@@ -116,7 +126,7 @@ export default function DashboardPage() {
   const handleImportClick = () => {
     if (!user) {
       toast({ title: "Authentication Required", description: "Please log in to import transactions." });
-      router.push('/login');
+      router.push('/auth');
       return;
     }
     router.push('/import');
@@ -137,7 +147,7 @@ export default function DashboardPage() {
   return (
     <div> {/* Outer container for PageHeader and scrollable content */}
       <PageHeader
-        title="Overview"
+        title="Home"
         description="Your financial snapshot at a glance."
         actions={
             <div className="flex gap-3">
@@ -152,15 +162,13 @@ export default function DashboardPage() {
       />
 
       {/* Scroll-snap container for dashboard sections */}
-      <div 
-        className="scroll-smooth" 
-        style={{ 
-          scrollSnapType: 'y proximity', 
-          overflowY: 'auto', 
-          // Approximate height: viewport height - typical header/nav - page padding
-          // This might need adjustment based on your exact AppShell header height
-          maxHeight: 'calc(100vh - 150px)', 
-          paddingBottom: '5vh' // Add some padding at the bottom to ensure last item can snap well
+      <div
+        className="scroll-smooth"
+        style={{
+          scrollSnapType: 'y proximity',
+          overflowY: 'auto',
+          maxHeight: 'calc(100vh - 150px)',
+          paddingBottom: '5vh'
         }}
       >
 
@@ -204,3 +212,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

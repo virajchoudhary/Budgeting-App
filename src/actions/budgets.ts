@@ -3,7 +3,7 @@
 
 import { auth, db } from '@/lib/firebase';
 import type { Budget } from '@/types';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where, serverTimestamp, Timestamp, limit as limitConstraint, orderBy } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 
 // Helper to get current user ID
@@ -32,8 +32,8 @@ export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spen
     const docRef = await addDoc(collection(db, 'budgets'), newBudget);
     revalidatePath('/budgets');
     revalidatePath('/'); // For dashboard budget overview
-    return { 
-      id: docRef.id, 
+    return {
+      id: docRef.id,
       ...budgetData, // Return the original data shape for dates
       userId,
       spent: 0,
@@ -46,7 +46,7 @@ export async function addBudget(budgetData: Omit<Budget, 'id' | 'userId' | 'spen
   }
 }
 
-export async function getBudgets(): Promise<Budget[]> {
+export async function getBudgets(fetchLimit?: number): Promise<Budget[]> {
   const userId = getCurrentUserId();
   if (!userId) {
     return [];
@@ -54,8 +54,17 @@ export async function getBudgets(): Promise<Budget[]> {
 
   try {
     const budgetsCollection = collection(db, 'budgets');
-    const q = query(budgetsCollection, where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
+    const queryConstraints: any[] = [
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc') // Order by creation date or another relevant field
+    ];
+
+    if (fetchLimit && fetchLimit > 0) {
+        queryConstraints.push(limitConstraint(fetchLimit));
+    }
+
+    const finalQuery = query(budgetsCollection, ...queryConstraints);
+    const querySnapshot = await getDocs(finalQuery);
     const budgets = querySnapshot.docs.map(docSnap => {
       const data = docSnap.data();
       return {
@@ -81,7 +90,7 @@ export async function updateBudget(budgetId: string, updatedData: Partial<Omit<B
   }
 
   const budgetDocRef = doc(db, 'budgets', budgetId);
-  
+
   // Prepare data, ensuring serverTimestamp for updatedAt
   const dataToUpdate: any = { ...updatedData, updatedAt: serverTimestamp() };
 
