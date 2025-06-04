@@ -4,22 +4,36 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
+const messagingSenderId = process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID;
+const appId = process.env.NEXT_PUBLIC_FIREBASE_APP_ID;
 
 if (!apiKey) {
-  // This error will be thrown if the API key is not set in the environment variables.
-  // It will be caught by Next.js and displayed, hopefully making the issue clearer.
   throw new Error(
     "Firebase API Key is missing. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY is set in your .env file and that you have restarted your development server."
   );
 }
+if (!authDomain) {
+  throw new Error(
+    "Firebase Auth Domain is missing. Please ensure NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN is set in your .env file and that you have restarted your development server."
+  );
+}
+if (!projectId) {
+  throw new Error(
+    "Firebase Project ID is missing. Please ensure NEXT_PUBLIC_FIREBASE_PROJECT_ID is set in your .env file and that you have restarted your development server."
+  );
+}
+
 
 const firebaseConfig = {
-  apiKey: apiKey, // Use the checked apiKey
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: apiKey,
+  authDomain: authDomain,
+  projectId: projectId,
+  storageBucket: storageBucket,
+  messagingSenderId: messagingSenderId,
+  appId: appId,
 };
 
 let app: FirebaseApp;
@@ -58,3 +72,4 @@ if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
 
 
 export { app, auth, db };
+
