@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Brain, Loader2, MessageSquareQuestion } from 'lucide-react';
+import { Brain, Loader2, MessageSquareQuote } from 'lucide-react'; // Corrected icon
 import { generateSpendingInsights } from '@/ai/flows/spending-insights';
-import { queryFinancialData } from '@/ai/flows/financial-query-flow'; // New AI flow
+import { queryFinancialData } from '@/ai/flows/financial-query-flow';
 import { mockTransactions } from '@/lib/mock-data'; 
 import { ScrollFadeIn } from '@/components/shared/scroll-fade-in';
 import { useAuth } from '@/contexts/auth-context';
@@ -192,7 +192,7 @@ export default function InsightsPage() {
       <ScrollFadeIn delay="delay-200">
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><MessageSquareQuestion className="h-6 w-6 text-primary" /> Financial Q&amp;A</CardTitle>
+            <CardTitle className="flex items-center gap-2"><MessageSquareQuote className="h-6 w-6 text-primary" /> Financial Q&amp;A</CardTitle> {/* Corrected icon */}
             <CardDescription>
               Ask questions about your financial data. The AI will analyze your transactions to find answers.
             </CardDescription>
@@ -210,7 +210,7 @@ export default function InsightsPage() {
               />
             </div>
             <Button onClick={handleFinancialQuery} disabled={isLoadingQuery || !user || currentTransactions.length === 0}>
-              {isLoadingQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuestion className="mr-2 h-4 w-4" />}
+              {isLoadingQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />} {/* Corrected icon */}
               Ask Question
             </Button>
           </CardContent>
