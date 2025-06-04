@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Brain, Loader2, MessageSquareQuote } from 'lucide-react'; // Corrected icon
+import { Brain, Loader2, MessageSquareQuote } from 'lucide-react';
 import { generateSpendingInsights } from '@/ai/flows/spending-insights';
 import { queryFinancialData } from '@/ai/flows/financial-query-flow';
 import { mockTransactions } from '@/lib/mock-data'; 
@@ -47,7 +47,7 @@ export default function InsightsPage() {
     setIsFetchingData(true);
     try {
       const fetchedTransactions = await getTransactions(); 
-      setCurrentTransactions(fetchedTransactions.length > 0 ? fetchedTransactions : mockTransactions);
+      setCurrentTransactions(fetchedTransactions.length > 0 ? fetchedTransactions : []); // Use empty array if user has no transactions
     } catch (err) {
       console.error("Error fetching transactions for insights:", err);
       toast({ variant: "destructive", title: "Error", description: "Could not load transaction data for insights." });
@@ -65,12 +65,12 @@ export default function InsightsPage() {
 
 
   const handleGenerateInsights = async () => {
-    if (!user && currentTransactions === mockTransactions) {
+    if (!user) { // Check for user first; mockTransactions handled by fetch logic
         toast({variant: "destructive", title: "Login Required", description: "Please log in to generate personalized insights."});
         return;
     }
-    if (currentTransactions.length === 0) {
-        toast({title: "No Data", description: "No transaction data available to generate insights."});
+    if (currentTransactions.length === 0) { // Check after user check
+        toast({title: "No Data", description: "No transaction data available to generate insights. Please add some transactions first."});
         return;
     }
 
@@ -99,16 +99,16 @@ export default function InsightsPage() {
   };
 
   const handleFinancialQuery = async () => {
-    if (!user && currentTransactions === mockTransactions) {
+    if (!user) { // Check for user first
         toast({variant: "destructive", title: "Login Required", description: "Please log in to ask financial questions."});
         return;
     }
-     if (currentTransactions.length === 0) {
-        toast({title: "No Data", description: "No transaction data available to query."});
+    if (!userQuery.trim()) { // Check if query is empty
+        toast({variant: "destructive", title: "Empty Question", description: "Please enter a question."});
         return;
     }
-    if (!userQuery.trim()) {
-        toast({variant: "destructive", title: "Empty Question", description: "Please enter a question."});
+     if (currentTransactions.length === 0) { // Check for transactions after user and query checks
+        toast({title: "No Data", description: "No transaction data available to query. Please add some transactions first."});
         return;
     }
 
@@ -147,7 +147,7 @@ export default function InsightsPage() {
   }
 
   return (
-    <div className="space-y-12"> {/* Increased spacing between cards */}
+    <div className="space-y-12">
       <PageHeader
         title="AI Financial Assistant"
         description="Get AI-powered insights and answers about your spending habits."
@@ -174,7 +174,7 @@ export default function InsightsPage() {
                 disabled={!user || isLoadingInsights}
               />
             </div>
-            <Button onClick={handleGenerateInsights} disabled={isLoadingInsights || !user || currentTransactions.length === 0}>
+            <Button onClick={handleGenerateInsights} disabled={isLoadingInsights || !user}>
               {isLoadingInsights ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
               Generate Insights
             </Button>
@@ -192,7 +192,7 @@ export default function InsightsPage() {
       <ScrollFadeIn delay="delay-200">
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><MessageSquareQuote className="h-6 w-6 text-primary" /> Financial Q&amp;A</CardTitle> {/* Corrected icon */}
+            <CardTitle className="flex items-center gap-2"><MessageSquareQuote className="h-6 w-6 text-primary" /> Financial Q&amp;A</CardTitle>
             <CardDescription>
               Ask questions about your financial data. The AI will analyze your transactions to find answers.
             </CardDescription>
@@ -209,8 +209,8 @@ export default function InsightsPage() {
                 disabled={!user || isLoadingQuery}
               />
             </div>
-            <Button onClick={handleFinancialQuery} disabled={isLoadingQuery || !user || currentTransactions.length === 0}>
-              {isLoadingQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />} {/* Corrected icon */}
+            <Button onClick={handleFinancialQuery} disabled={isLoadingQuery || !user || !userQuery.trim()}>
+              {isLoadingQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />}
               Ask Question
             </Button>
           </CardContent>
