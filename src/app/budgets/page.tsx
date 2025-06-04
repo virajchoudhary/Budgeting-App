@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit2, Trash2, Loader2, Info } from 'lucide-react';
+import { PlusCircle, Edit2, Trash2, Loader2, Info, Wallet } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import type { Budget, Transaction } from '@/types';
@@ -347,7 +347,10 @@ export default function BudgetsPage() {
             <ScrollFadeIn>
               <Card className="border-primary/30">
                 <CardHeader>
-                  <CardTitle className="text-2xl">Overall Budget Summary</CardTitle>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Wallet className="h-6 w-6 text-primary" />
+                    Overall Budget Summary
+                  </CardTitle>
                   <CardDescription>Your total spending limits at a glance.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
