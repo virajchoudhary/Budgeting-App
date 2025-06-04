@@ -195,14 +195,14 @@ export default function DashboardPage() {
       >
 
         {/* Overall Financial Snapshot Section */}
-        <div style={{ scrollSnapAlign: 'start' }}>
+        <div style={{ scrollSnapAlign: 'start' }} className="flex justify-center">
           <ScrollFadeIn>
             <Card className="border-primary/20 shadow-xl bg-card/80 backdrop-blur-lg">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-primary tracking-tight">Financial Snapshot</CardTitle>
                 <CardDescription>Your key financial totals at a glance.</CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center items-center"> {/* Centering the grid container */}
+              <CardContent className="flex justify-center items-center">
                 <div className="grid gap-6 md:grid-cols-3">
                   <SummaryCard title="Total Income" amount={totalIncome} type="income" />
                   <SummaryCard title="Total Expenses" amount={totalExpenses} type="expense" />
