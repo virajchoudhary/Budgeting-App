@@ -18,7 +18,7 @@ import { getBudgets } from '@/actions/budgets';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Added Card imports
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CategorySpending {
   name: string;
@@ -185,11 +185,11 @@ export default function DashboardPage() {
       />
 
       <div
-        className="scroll-smooth space-y-10" // Added space-y-10 for separation
+        className="scroll-smooth space-y-10" 
         style={{
           scrollSnapType: 'y proximity',
           overflowY: 'auto',
-          maxHeight: 'calc(100vh - 150px)', // Adjust based on PageHeader height
+          maxHeight: 'calc(100vh - 150px)', 
           paddingBottom: '5vh'
         }}
       >
@@ -202,11 +202,11 @@ export default function DashboardPage() {
                 <CardTitle className="text-2xl font-bold text-primary tracking-tight">Financial Snapshot</CardTitle>
                 <CardDescription>Your key financial totals at a glance.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex justify-center items-center"> {/* Centering the grid container */}
                 <div className="grid gap-6 md:grid-cols-3">
-                  <SummaryCard title="Total Income" amount={totalIncome} type="income" period="All Time" />
-                  <SummaryCard title="Total Expenses" amount={totalExpenses} type="expense" period="All Time" />
-                  <SummaryCard title="Net Balance" amount={netBalance} type={netBalance >= 0 ? "income" : "expense"} period="All Time" />
+                  <SummaryCard title="Total Income" amount={totalIncome} type="income" />
+                  <SummaryCard title="Total Expenses" amount={totalExpenses} type="expense" />
+                  <SummaryCard title="Net Balance" amount={netBalance} type={netBalance >= 0 ? "income" : "expense"} />
                 </div>
               </CardContent>
             </Card>
@@ -237,3 +237,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
