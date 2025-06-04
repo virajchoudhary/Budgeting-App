@@ -19,11 +19,11 @@ export function SummaryCard({ title, amount, type }: SummaryCardProps) {
 
   return (
     <Card>
-      <CardHeader className="relative space-y-0 py-3 px-4"> {/* Removed flex, adjusted padding */}
-        <CardTitle className="text-center text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          {title}
+      <CardHeader className="py-3 px-4">
+        <CardTitle className="flex items-center justify-center gap-1 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+          <span>{title}</span>
+          <Icon className={`h-4 w-4 ${iconColor}`} />
         </CardTitle>
-        <Icon className={`absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 ${iconColor}`} />
       </CardHeader>
       <CardContent className="pb-4 pt-0 text-center">
         <div className={`text-3xl font-semibold ${amountColor}`}>

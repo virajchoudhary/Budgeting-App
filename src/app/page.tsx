@@ -18,7 +18,7 @@ import { getBudgets } from '@/actions/budgets';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CategorySpending {
   name: string;
@@ -200,7 +200,6 @@ export default function DashboardPage() {
             <Card className="border-primary/20 shadow-xl bg-card/80 backdrop-blur-lg">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-primary tracking-tight">Financial Snapshot</CardTitle>
-                <CardDescription>Your key financial totals at a glance.</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center items-center">
                 <div className="grid gap-6 md:grid-cols-3">
