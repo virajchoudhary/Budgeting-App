@@ -52,7 +52,7 @@ const financialQueryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    if (!output?.answer) {
+    if (!output || typeof output.answer !== 'string' || output.answer.trim() === '') {
         return { answer: "I apologize, I couldn't generate an answer based on the provided data. Please try rephrasing your question or ensure your transactions are up to date." };
     }
     return output;
