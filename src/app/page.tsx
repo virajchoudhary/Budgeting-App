@@ -199,7 +199,7 @@ export default function DashboardPage() {
           <ScrollFadeIn>
             <Card className="border-primary/20 shadow-xl bg-card/80 backdrop-blur-lg">
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-primary tracking-tight">Financial Snapshot</CardTitle>
+                <CardTitle className="text-2xl font-bold text-foreground tracking-tight">Financial Snapshot</CardTitle>
               </CardHeader>
               <CardContent className="flex justify-center items-center">
                 <div className="grid gap-6 md:grid-cols-3">

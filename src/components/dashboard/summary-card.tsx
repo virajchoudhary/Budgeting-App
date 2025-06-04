@@ -20,7 +20,7 @@ export function SummaryCard({ title, amount, type }: SummaryCardProps) {
   return (
     <Card>
       <CardHeader className="py-3 px-4">
-        <CardTitle className="flex items-center justify-center gap-1 text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        <CardTitle className="flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider py-1">
           <span>{title}</span>
           <Icon className={`h-4 w-4 ${iconColor}`} />
         </CardTitle>
@@ -33,4 +33,3 @@ export function SummaryCard({ title, amount, type }: SummaryCardProps) {
     </Card>
   );
 }
-
