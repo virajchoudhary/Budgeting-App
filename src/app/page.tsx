@@ -17,7 +17,8 @@ import { getTransactions } from '@/actions/transactions';
 import { getBudgets } from '@/actions/budgets';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns'; // For budget calculation
+import { parseISO, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'; // Added Card imports
 
 interface CategorySpending {
   name: string;
@@ -33,9 +34,9 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [allUserTransactions, setAllUserTransactions] = useState<Transaction[]>([]); // Stores all transactions for calculations
-  const [recentTransactionsList, setRecentTransactionsList] = useState<Transaction[]>([]); // For display
-  const [dashboardBudgets, setDashboardBudgets] = useState<Budget[]>([]); // Budgets with calculated spent
+  const [allUserTransactions, setAllUserTransactions] = useState<Transaction[]>([]);
+  const [recentTransactionsList, setRecentTransactionsList] = useState<Transaction[]>([]);
+  const [dashboardBudgets, setDashboardBudgets] = useState<Budget[]>([]);
 
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
@@ -70,7 +71,6 @@ export default function DashboardPage() {
       .slice(0, 6);
     setCategorySpending(formattedSpendingData);
 
-    // Calculate spent for dashboard budgets
     const calculatedDashboardBudgets = budgetsToProcess.map(budget => {
         let spent = 0;
         const budgetStartDate = startOfDay(parseISO(budget.startDate));
@@ -102,19 +102,17 @@ export default function DashboardPage() {
       })
       setAllUserTransactions(mockTransactions);
       calculateSummariesAndBudgets(mockTransactions, mockCalculatedBudgets);
-      // setDashboardBudgets remains handled by calculateSummariesAndBudgets
       setIsLoadingData(false);
       return;
     }
 
     try {
       const [userTransactions, userLimitedBudgets] = await Promise.all([
-        getTransactions(), // Fetches all transactions
+        getTransactions(),
         getBudgets(DASHBOARD_BUDGET_LIMIT)
       ]);
 
       setAllUserTransactions(userTransactions);
-      // Use fetched (limited) budgets or mock if user has none, then calculate
       const budgetsForCalc = userLimitedBudgets.length > 0 ? userLimitedBudgets : mockBudgets.slice(0, DASHBOARD_BUDGET_LIMIT);
       calculateSummariesAndBudgets(userTransactions, budgetsForCalc);
 
@@ -173,7 +171,7 @@ export default function DashboardPage() {
     <div>
       <PageHeader
         title="Home"
-        description="Your financial snapshot at a glance."
+        description="Your financial command center."
         actions={
           <div className="flex gap-3">
             <Button onClick={handleAddTransactionClick}>
@@ -187,30 +185,36 @@ export default function DashboardPage() {
       />
 
       <div
-        className="scroll-smooth"
+        className="scroll-smooth space-y-10" // Added space-y-10 for separation
         style={{
           scrollSnapType: 'y proximity',
           overflowY: 'auto',
-          maxHeight: 'calc(100vh - 150px)',
+          maxHeight: 'calc(100vh - 150px)', // Adjust based on PageHeader height
           paddingBottom: '5vh'
         }}
       >
 
-        <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '40vh' }}>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <ScrollFadeIn>
-              <SummaryCard title="Total Income" amount={totalIncome} period="All Time" type="income" />
-            </ScrollFadeIn>
-            <ScrollFadeIn>
-              <SummaryCard title="Total Expenses" amount={totalExpenses} period="All Time" type="expense" />
-            </ScrollFadeIn>
-            <ScrollFadeIn>
-              <SummaryCard title="Net Balance" amount={netBalance} period="All Time" type={netBalance >= 0 ? "income" : "expense"} />
-            </ScrollFadeIn>
-          </div>
+        {/* Overall Financial Snapshot Section */}
+        <div style={{ scrollSnapAlign: 'start' }}>
+          <ScrollFadeIn>
+            <Card className="border-primary/20 shadow-xl bg-card/80 backdrop-blur-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-primary tracking-tight">Financial Snapshot</CardTitle>
+                <CardDescription>Your key financial totals at a glance.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-3">
+                  <SummaryCard title="Total Income" amount={totalIncome} type="income" period="All Time" />
+                  <SummaryCard title="Total Expenses" amount={totalExpenses} type="expense" period="All Time" />
+                  <SummaryCard title="Net Balance" amount={netBalance} type={netBalance >= 0 ? "income" : "expense"} period="All Time" />
+                </div>
+              </CardContent>
+            </Card>
+          </ScrollFadeIn>
         </div>
 
-        <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '65vh' }}>
+        {/* Subsequent Sections */}
+        <div style={{ scrollSnapAlign: 'start' }}>
           <div className="grid gap-6 lg:grid-cols-2">
             <ScrollFadeIn>
               <RecentTransactions transactions={recentTransactionsList} />
@@ -221,7 +225,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="py-10" style={{ scrollSnapAlign: 'start', minHeight: '55vh' }}>
+        <div style={{ scrollSnapAlign: 'start' }}>
           <div className="grid gap-6 lg:grid-cols-1">
             <ScrollFadeIn>
               <BudgetOverview budgets={dashboardBudgets} />
