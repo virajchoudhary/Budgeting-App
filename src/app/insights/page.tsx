@@ -47,7 +47,7 @@ export default function InsightsPage() {
     setIsFetchingData(true);
     try {
       const fetchedTransactions = await getTransactions(); 
-      setCurrentTransactions(fetchedTransactions.length > 0 ? fetchedTransactions : []); // Use empty array if user has no transactions
+      setCurrentTransactions(fetchedTransactions.length > 0 ? fetchedTransactions : []); 
     } catch (err) {
       console.error("Error fetching transactions for insights:", err);
       toast({ variant: "destructive", title: "Error", description: "Could not load transaction data for insights." });
@@ -65,12 +65,12 @@ export default function InsightsPage() {
 
 
   const handleGenerateInsights = async () => {
-    if (!user) { // Check for user first; mockTransactions handled by fetch logic
-        toast({variant: "destructive", title: "Login Required", description: "Please log in to generate personalized insights."});
+    if (currentTransactions.length === 0 && !user) { // Check for mock data if not logged in
+        toast({title: "No Mock Data", description: "No mock transaction data available to generate insights."});
         return;
     }
-    if (currentTransactions.length === 0) { // Check after user check
-        toast({title: "No Data", description: "No transaction data available to generate insights. Please add some transactions first."});
+    if (currentTransactions.length === 0 && user) { // Check for user data if logged in
+        toast({title: "No User Data", description: "No transaction data available to generate insights. Please add some transactions first."});
         return;
     }
 
@@ -99,16 +99,16 @@ export default function InsightsPage() {
   };
 
   const handleFinancialQuery = async () => {
-    if (!user) { // Check for user first
-        toast({variant: "destructive", title: "Login Required", description: "Please log in to ask financial questions."});
-        return;
-    }
-    if (!userQuery.trim()) { // Check if query is empty
+    if (!userQuery.trim()) {
         toast({variant: "destructive", title: "Empty Question", description: "Please enter a question."});
         return;
     }
-     if (currentTransactions.length === 0) { // Check for transactions after user and query checks
-        toast({title: "No Data", description: "No transaction data available to query. Please add some transactions first."});
+    if (currentTransactions.length === 0 && !user) { // Check for mock data
+        toast({title: "No Mock Data", description: "No mock transaction data available to query."});
+        return;
+    }
+    if (currentTransactions.length === 0 && user) { // Check for user data
+        toast({title: "No User Data", description: "No transaction data available to query. Please add some transactions first."});
         return;
     }
 
@@ -171,10 +171,10 @@ export default function InsightsPage() {
                 onChange={(e) => setUserRules(e.target.value)}
                 placeholder="e.g., 'Flag any spending over $100 on Dining Out.' or 'Highlight subscriptions.'"
                 className="min-h-[80px]"
-                disabled={!user || isLoadingInsights}
+                disabled={isLoadingInsights}
               />
             </div>
-            <Button onClick={handleGenerateInsights} disabled={isLoadingInsights || !user}>
+            <Button onClick={handleGenerateInsights} disabled={isLoadingInsights}>
               {isLoadingInsights ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
               Generate Insights
             </Button>
@@ -206,10 +206,10 @@ export default function InsightsPage() {
                 onChange={(e) => setUserQuery(e.target.value)}
                 placeholder="e.g., 'How much did I spend on groceries last week?' or 'What are my top 3 spending categories this month?'"
                 className="min-h-[80px]"
-                disabled={!user || isLoadingQuery}
+                disabled={isLoadingQuery}
               />
             </div>
-            <Button onClick={handleFinancialQuery} disabled={isLoadingQuery || !user || !userQuery.trim()}>
+            <Button onClick={handleFinancialQuery} disabled={isLoadingQuery || !userQuery.trim()}>
               {isLoadingQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquareQuote className="mr-2 h-4 w-4" />}
               Ask Question
             </Button>
@@ -226,3 +226,4 @@ export default function InsightsPage() {
     </div>
   );
 }
+
