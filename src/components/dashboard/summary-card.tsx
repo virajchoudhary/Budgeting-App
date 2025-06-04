@@ -20,10 +20,10 @@ export function SummaryCard({ title, amount, type }: SummaryCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">{title}</CardTitle>
+        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex-1 text-center">{title}</CardTitle>
         <Icon className={`h-5 w-5 ${type === "income" ? "text-green-500" : "text-red-500"}`} />
       </CardHeader>
-      <CardContent className="pb-4 pt-0"> {/* Adjusted top padding */}
+      <CardContent className="pb-4 pt-0 text-center"> {/* Adjusted top padding and added text-center */}
         <div className={`text-3xl font-semibold ${amountColor}`}>
           {amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
         </div>
