@@ -362,7 +362,7 @@ export default function BudgetsPage() {
 
           {categoryBudgets.length > 0 && (
             <div>
-                {overallBudgets.length > 0 && <h2 className="text-2xl font-semibold tracking-tight mt-10 mb-6">Category Budgets</h2>}
+                {overallBudgets.length > 0 && <h2 className="text-2xl font-semibold tracking-tight mt-10 mb-6 text-foreground">Category Budgets</h2>}
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {categoryBudgets.map(renderBudgetCard)}
                 </div>
