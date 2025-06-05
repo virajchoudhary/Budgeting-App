@@ -64,7 +64,7 @@ export default function AuthPage() {
       />
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl">{isLoginView ? 'Welcome Back' : 'Get Started'}</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground tracking-tight">{isLoginView ? 'Welcome Back' : 'Get Started'}</CardTitle>
           <CardDescription>
             {isLoginView ? 'Enter your credentials to continue.' : 'Create an account to begin your financial journey.'}
           </CardDescription>
@@ -123,3 +123,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    

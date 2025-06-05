@@ -347,7 +347,7 @@ export default function BudgetsPage() {
             <ScrollFadeIn>
               <Card className="border-primary/30">
                 <CardHeader>
-                  <CardTitle className="text-2xl flex items-center gap-2">
+                  <CardTitle className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
                     <Wallet className="h-6 w-6 text-primary" />
                     Overall Budget Summary
                   </CardTitle>
@@ -403,3 +403,5 @@ export default function BudgetsPage() {
     </div>
   );
 }
+
+    
