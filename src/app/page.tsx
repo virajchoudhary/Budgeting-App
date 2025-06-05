@@ -198,8 +198,8 @@ export default function DashboardPage() {
         <div style={{ scrollSnapAlign: 'start' }} className="flex justify-center">
           <ScrollFadeIn>
             <Card className="border-primary/20 shadow-xl bg-card/80 backdrop-blur-lg">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-foreground tracking-tight">Financial Snapshot</CardTitle>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold text-foreground tracking-tight text-center">Financial Snapshot</CardTitle>
               </CardHeader>
               <CardContent className="flex justify-center items-center">
                 <div className="grid gap-6 md:grid-cols-3">
